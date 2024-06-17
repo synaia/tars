@@ -26,3 +26,4 @@
 /samantha/src/roberta_base_ft_tokenizer/
 /staticfiles/
 /.vscode/
+.DS_Store

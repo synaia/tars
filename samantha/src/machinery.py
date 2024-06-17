@@ -28,15 +28,7 @@ DEFAULT_STATE = "draft"
 
 device = get_device()
 
-#TODO: ponerlo con sqlalchemy 
-def odoo_update_state(msisdn: str, campaign: str, state: str):
-    if state in ["new", "recording", "evaluation"]:
-        odoo_message.applicant_stage(state, msisdn)
-    odoo_message.update_stage({
-        'msisdn': msisdn,
-        'campaign': campaign,
-        'state': state,
-    })
+
 
 class SchedulerMachine(transitions.Machine):
     def __init__(self,  msisdn: str, campaign: str, wtsapp_client: WhatsAppClient) -> None:
@@ -51,14 +43,10 @@ class SchedulerMachine(transitions.Machine):
 
         self.chat_len = len(self.chat_history)
 
-        # self.draft_module = Draft().activate_assertions()
-        # self.new_module = New().activate_assertions()
-        # self.recording_module = Recording()
-        # self.evaluation_module = Evaluation(msisdn, odoo_message) # odoo_message es lento :( 
-
         m_state = self.data.get_state(msisdn, campaign)
         transitions.Machine.__init__(self, states=states, initial=m_state['state'])
         self.add_ordered_transitions()
+
 
     def draft_module(self, text: str, chat_history: list[str], utterance_type: str) -> str:
         data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
@@ -66,17 +54,20 @@ class SchedulerMachine(transitions.Machine):
         response = response.json()
         return response['llm']
     
+    
     def new_module(self, text: str, chat_history: list[str], utterance_type: str) -> str:
         data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
         response = requests.post("http://localhost:9091/llm/new", json=data)
         response = response.json()
         return response['llm']
     
+    
     def recording_module(self, text: str, chat_history: list[str], utterance_type: str) -> str:
         data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
         response = requests.post("http://localhost:9091/llm/recording", json=data)
         response = response.json()
         return response['llm']
+    
     
     def evaluation_module(self, msisdn: str) -> str:
         data = {'msisdn': msisdn}
@@ -122,10 +113,7 @@ class SchedulerMachine(transitions.Machine):
         # self.hist(text, response)
         # return utterance_type, end_time
 
-    def router(self, text: str, utterance_type: str) -> str:
-        if utterance_type == "continue_later":
-            return  "Please choose a date 📆 for us to chat using the form below— I’m looking forward to speaking with you!"
-         
+    def router(self, text: str, utterance_type: str) -> str: 
         if self.state == "draft" and text == "form completed":
             try:
                 odoo_message.dummy_applicant(self.msisdn) # work because its the #1 thread ? ...
@@ -154,8 +142,15 @@ class SchedulerMachine(transitions.Machine):
             response = self.recording_module(text, self.chat_history, utterance_type)
         elif self.state == "evaluation":
             response = self.evaluation_module(text, self.chat_history, utterance_type)
-        
 
+        if utterance_type == "continue_later":
+            pick = "Could you please choose a date 📆 from the list below ⤵️ for us to continue our conversation? Thanks a lot!"
+            return f"{response[0]}\n{pick}"
+        
+        if utterance_type == "stop_continue":
+            pick = "If you want, I can contact you at another time. Just let me know a date that works best for you from the options below. 📅"
+            return f"{response[0]}\n{pick}"
+        
         return response[0]
     
 
@@ -203,10 +198,14 @@ class SchedulerMachine(transitions.Machine):
         
 
     def inactivity_firer(self, source: str, whatsapp_id: str):
-        print(f"Hey {self.msisdn} you are inactive for {INACTIVITY} seconds .....")
-        collected = self.data.get_collected_messages(self.msisdn, self.campaign)
-        collected = [c['message'] for c in collected]
-        print(collected)
+         #TODO: send BACK to WhatsApp here !!
+        self.state = self.data.get_state(self.msisdn, self.campaign)['state']
+        if self.state == "draft":
+            print(f"🤖 Don't forget to take a moment to complete the form! It's easy and only takes 1-2 minutes 😊📝")
+        elif self.state == "new":
+            print(f"🤖 Just a friendly reminder to complete the evaluation 🌟—you're one step closer to your hiring! 🚀😊")            
+        elif self.state == "recording":
+            print(f"🤖 Please don't forget the voice note 🗣️! It's the last step, and it shouldn't be more than 2 minutes. Thank you! 😊")
 
 
     def message_deliver(self, message: str, whatsapp_id: str):
@@ -254,14 +253,14 @@ class SchedulerMachine(transitions.Machine):
     def step_completed(self):
         self.next_state()
         self.data.set_state(self.msisdn, self.campaign, self.state, self.now_)
-        scheduler.add_job(odoo_update_state, 'date', run_date=None, args=[self.msisdn, self.campaign, self.state])
+        scheduler.add_job(self.data.odoo_update_state, 'date', run_date=None, args=[self.msisdn, self.campaign, self.state])
 
 
     @property
     def chat_history(self) -> List[str]:
         collected = self.data.get_collected_messages(self.msisdn, self.campaign)
         chat_history = [f"{c['source']}: {c['message']}" for c in collected]
-        return chat_history
+        return chat_history[:-1]
     
 
 
@@ -393,7 +392,7 @@ class DataManager():
         record = {
             "msisdn": msisdn,
             "campaign": campaign,
-            "message": message,
+            "message": message.replace("\n", ". "),
             "source": source,
             "whatsapp_id": whatsapp_id,
             "sending_date": sending_date.isoformat(),
@@ -463,6 +462,16 @@ class DataManager():
         record_hash_key = f"state:{record_id}"
         record = redis_conn.hgetall(record_hash_key)
         return {key.decode(): value.decode() for key, value in record.items()}
+    
+
+    def odoo_update_state(self, msisdn: str, campaign: str, state: str):
+        if state in ["new", "recording", "evaluation"]:
+            odoo_message.applicant_stage(state, msisdn)
+        odoo_message.update_stage({
+            'msisdn': msisdn,
+            'campaign': campaign,
+            'state': state,
+        })
 
 
 
@@ -479,8 +488,3 @@ if __name__ == "__main__":
         machine(text, str(uuid.uuid4()))
 
     redis_conn.flushdb()
-
-
-
-
-

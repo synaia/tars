@@ -5,25 +5,22 @@ from integration.odoo import va
 from .configs import retriever_model
 
 
-utterance_type_list = [
+class_names = [
     "greetings",
-    "company_related",
-    "continue_related",
-    "not_continue_related",
-    "later_continue", 
+    "company", 
     "feedbacks", 
-    "answer_1",
-    "answer_2",
-    "answer_3",
-    "answer_4",
+    "continue_later", 
+    "stop_continue",
+    "trouble",
+    "himself",
+    "continue_yes",
 ]
-utterance_type_list.append('out_of_scope')
 
 
 class UtteranceSignature(dspy.Signature):
     """A basic utterance classifier in a chat conversation."""
     utterance: str = dspy.InputField(desc="An user utterance")
-    utterance_type: str = dspy.OutputField(desc=f"One type in the following list {str(utterance_type_list)}")
+    utterance_type: str = dspy.OutputField(desc=f"One type in the following list {str(class_names)}")
 
 
 class UtteranceClassificator(dspy.Module):
@@ -130,6 +127,17 @@ class GreetingSignature(dspy.Signature):
     text: str = dspy.InputField(desc="user input text")
     response: str = dspy.OutputField(desc="often between 3 and 5 words")
 
+class NoFeedBackSignature(dspy.Signature):
+    """Kindly reply back that there is no feedback yet"""
+    text: str = dspy.InputField(desc="user input text")
+    response: str = dspy.OutputField(desc="often between 3 and 5 words")
+
+
+class SelfSignature(dspy.Signature):
+    """Respond according to the text, be supportive and friendly"""
+    text: str = dspy.InputField(desc="user input text")
+    response: str = dspy.OutputField(desc="often between 10 and 12 words")
+
 
 class DraftSignature(dspy.Signature):
     """"Ask user to please take a moment to complete the form."""
@@ -153,10 +161,10 @@ class Draft(dspy.Module):
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type
-        if utterance_type == "later_continue":
+        if utterance_type == "continue_later":
             return self.later_continue(text=user_input, hint="It can only be scheduled to continue through chat").response, utterance_type
         
-        if utterance_type == "not_continue_related":
+        if utterance_type == "stop_continue":
             return self.not_continue(text=user_input).response, utterance_type
         
         response = self.predict(chat_history=chat_history, user_input=user_input, hint="The form is below, it is inside this chat session, you don't need to find anything outside.")
@@ -166,7 +174,7 @@ class Draft(dspy.Module):
         output: list[str] = []
         if utterance_type == "greetings":
              output.append(self.greeting(text=user_input).response)
-        elif utterance_type == "company_related":
+        elif utterance_type == "company":
             output.append(self.company(question=user_input, chat_history=chat_history)['answer'])
        
         output.append(response.response)
@@ -192,14 +200,16 @@ class New(dspy.Module):
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
-        
+        self.non_feedback = dspy.Predict(NoFeedBackSignature)
+        self.self_back = dspy.Predict(SelfSignature)
+
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type
-        if utterance_type == "later_continue":
+        if utterance_type == "continue_later":
             return self.later_continue(text=user_input, hint="It can only be scheduled to continue through chat, do not propose a new date").response, utterance_type
         
-        if utterance_type == "not_continue_related":
+        if utterance_type == "stop_continue":
             return self.not_continue(text=user_input).response, utterance_type
         
         response = self.predict(chat_history=chat_history, user_input=user_input, hint="The form is below, it is inside this chat, you don't need to find anything outside.")
@@ -209,8 +219,14 @@ class New(dspy.Module):
         output: list[str] = []
         if utterance_type == "greetings":
              output.append(self.greeting(text=user_input).response)
-        elif utterance_type == "company_related": # TODO: training new category: 'complaint'
+        elif utterance_type == "company":
             output.append(self.company(question=user_input, chat_history=chat_history)['answer'])
+        elif utterance_type == "feedbacks":
+            output.append(self.non_feedback(text=user_input).response)
+        elif utterance_type == "trouble":
+            pass
+        elif utterance_type == "himself":
+            output.append(self.self_back(text=user_input).response)
         
         output.append(response.response)
         return "\n".join(output), utterance_type
@@ -235,13 +251,15 @@ class Recording(dspy.Module):
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
+        self.non_feedback = dspy.Predict(NoFeedBackSignature)
+        self.self_back = dspy.Predict(SelfSignature)
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type
-        if utterance_type == "later_continue":
+        if utterance_type == "continue_later":
             return self.later_continue(text=user_input, hint="It can only be scheduled to continue through chat, do not propose a new date").response, utterance_type
         
-        if utterance_type == "not_continue_related":
+        if utterance_type == "stop_continue":
             return self.not_continue(text=user_input).response, utterance_type
         
         response = self.predict(chat_history=chat_history, user_input=user_input)
@@ -249,8 +267,14 @@ class Recording(dspy.Module):
         output: list[str] = []
         if utterance_type == "greetings":
              output.append(self.greeting(text=user_input).response)
-        elif utterance_type == "company_related": # TODO: training new category: 'complaint'
+        elif utterance_type == "company":
             output.append(self.company(question=user_input, chat_history=chat_history)['answer'])
+        elif utterance_type == "feedbacks":
+            output.append(self.non_feedback(text=user_input).response)
+        elif utterance_type == "trouble":
+            pass
+        elif utterance_type == "himself":
+            output.append(self.self_back(text=user_input).response)
         
         output.append(response.response)
         return "\n".join(output), utterance_type
@@ -275,13 +299,14 @@ class Evaluation(dspy.Module):
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
         self.applicant = ApplicantState(msisdn=msisdn, odoo_message=odoo_message)
+        self.self_back = dspy.Predict(SelfSignature)
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type
-        if utterance_type == "later_continue":
+        if utterance_type == "continue_later":
             return self.later_continue(text=user_input, hint="It can only be scheduled to continue through chat, do not propose a new date").response, utterance_type
         
-        if utterance_type == "not_continue_related":
+        if utterance_type == "stop_continue":
             return self.not_continue(text=user_input).response, utterance_type
         
         response = self.predict(chat_history=chat_history, user_input=user_input)
@@ -289,144 +314,14 @@ class Evaluation(dspy.Module):
         output: list[str] = []
         if utterance_type == "greetings":
              output.append(self.greeting(text=user_input).response)
-        elif utterance_type == "company_related": # TODO: training new category: 'complaint'
+        elif utterance_type == "company": # TODO: training new category: 'complaint'
             output.append(self.company(question=user_input, chat_history=chat_history)['answer'])
         elif utterance_type == "feedbacks":
             output.append(self.applicant(question=user_input).answer)
+        elif utterance_type == "trouble":
+            pass
+        elif utterance_type == "himself":
+            output.append(self.self_back(text=user_input).response)
         
         output.append(response.response)
         return "\n".join(output), utterance_type
-
-
-
-# utterance_type_list = [
-#     "greetings",
-#     "company_related",
-#     "continue_related",
-#     "not_continue_related",
-#     "later_continue", 
-#     "feedbacks", 
-#     "answer_1",
-#     "answer_2",
-#     "answer_3",
-#     "answer_4",
-# ]
-# utterance_type_list.append('out_of_scope')
-
-
-# class ApplicanStateSignature(dspy.Signature):
-#     """Respond in a friendly way, often between 7 and 12 words, that the user process is in '{}' step."""
-#     question: str = dspy.InputField()
-#     answer: str = dspy.OutputField()
-    
-
-# class ApplicantState(dspy.Module):
-#     def __init__(self, msisdn: str,  odoo_message: va.Messages) -> None:
-#         super().__init__()
-#         self.msisdn = msisdn
-#         self.odoo_message = odoo_message
-
-#     def forward(self, question: str) -> dspy.Prediction:
-#         state = self.odoo_message.get_applicant_state(msisdn=self.msisdn)
-#         ApplicanStateSignature.__doc__ = ApplicanStateSignature.__doc__.format(state)
-#         applicant = dspy.ChainOfThought(ApplicanStateSignature)
-#         response = applicant(question=question)
-#         return response
-
-
-# class NotFound(dspy.Signature):
-#     """Generates a denial response related to the question in context"""
-#     context: str = dspy.InputField()
-#     response: str = dspy.OutputField(desc="often between 3 and 7 words")
-
-
-# class Veracity(dspy.Signature):
-#     context_provided: str = dspy.InputField(desc="may contain relevant facts")
-#     answer: str = dspy.InputField()
-#     answer_is_in_context_provided: bool = dspy.OutputField(desc="verify that the answer is in the context_provided, respond True or False")
-
-
-# class CompanySignature(dspy.Signature):
-#     """Answer questions with short factoid answers and friendly, use emoji. Answer should be in the context."""
-#     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the history of conversation.")
-#     context: str = dspy.InputField(desc="may contain relevant facts")
-#     question: str = dspy.InputField(desc="Human question to be answered")
-#     answer: str = dspy.OutputField(desc="Contains the AI message output, often between 6 and 12 words")
-
-
-# class CompanyRelated(dspy.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.retriever = retriever_model
-#         self.predict = dspy.ChainOfThought(CompanySignature)
-#         self.veracity = dspy.TypedChainOfThought(Veracity)
-#         self.not_found = dspy.Predict(NotFound)
-    
-#     def forward(self, question: str, chat_history: list[str]) -> dict:
-#         context = self.retriever(question)
-#         context = [ctx['text'] for ctx in context]
-#         response = self.predict(context=context, chat_history=chat_history, question=question)
-#         veracity = self.veracity(context_provided=str(context), answer=response.answer)
-#         if veracity.answer_is_in_context_provided:
-#             r = response
-#             return {
-#                 "answer": r.answer,
-#                 "answer_is_in_context_provided": veracity.answer_is_in_context_provided
-#             }
-#         else:
-#             print("Not Found!")
-#             r = self.not_found(context=question)
-#             return {
-#                 "answer": r.response,
-#                 "answer_is_in_context_provided": veracity.answer_is_in_context_provided
-#             }
-        
-
-# class AnswerComment(dspy.Signature):
-#     """Generate a positive or supportive comment to the response, use emoji."""
-#     response: str = dspy.InputField()
-#     comment: str = dspy.OutputField(desc="often between 5 and 10 words")
-
-
-# class UtteranceSignature(dspy.Signature):
-#     """A basic utterance classifier in a chat conversation."""
-#     utterance: str = dspy.InputField(desc="An user utterance")
-#     utterance_type: str = dspy.OutputField(desc=f"One type in the following list {str(utterance_type_list)}")
-
-
-# class UtteranceClassificator(dspy.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.cot = dspy.ChainOfThought(UtteranceSignature)
-
-#     def forward(self, utterance: str) -> dspy.Prediction:
-#         return self.cot(utterance=utterance)
-    
-
-# class ActionSignature(dspy.Signature):
-#     """A basic notification"""
-#     utterance = dspy.InputField(desc="An user utterance")
-#     response = dspy.OutputField()
-
-    
-# class Action(dspy.Module):
-#     def __init__(self, signature):
-#         super().__init__()
-#         self.action = dspy.ChainOfThought(signature)
-        
-#     def forward(self, utterance: str) -> dspy.Prediction:
-#         return self.action(utterance=utterance)
-    
-
-# class WelcomeSignature(dspy.Signature):
-#     """A basic welcome"""
-#     utterance = dspy.InputField(desc="An user utterance")
-#     welcome_messege = dspy.OutputField(desc="often between 5 and 10 words")
-
-# class Welcome(dspy.Module):
-#     def __init__(self, signature):
-#         super().__init__()
-#         self.welcome = dspy.Predict(signature)
-    
-#     def forward(self, utterance: str) -> dspy.Prediction:
-#         return self.welcome(utterance=utterance)
