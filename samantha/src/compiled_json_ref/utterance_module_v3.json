@@ -1,0 +1,81 @@
+{
+  "cot": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "utterance": "I'm on a roll, can we catch up later?",
+        "rationale": "later_continue. We see that the user is indicating they are busy at the moment but would like to continue the conversation later.",
+        "utterance_type": "later_continue"
+      },
+      {
+        "augmented": true,
+        "utterance": "My strategy is to listen carefully, acknowledge their concerns, and collaborate to find a solution.",
+        "rationale": "produce the utterance_type. We see that the user is describing their strategy in handling customer concerns, which involves listening, acknowledging, and collaborating. This aligns with providing a solution that meets the customer's needs, making it an answer_3 type utterance.",
+        "utterance_type": "answer_3"
+      },
+      {
+        "utterance": "Got it! Next steps are...",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "I'm a strong team player who follows established policies and procedures.",
+        "utterance_type": "answer_4"
+      },
+      {
+        "utterance": "Yes, I'm quite comfortable working in a team and following all the necessary procedures.",
+        "utterance_type": "answer_4"
+      },
+      {
+        "utterance": "Do you offer any training programs for new hires?",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "Hello! How does the company ensure data privacy and security?",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "I'm going to step back from this, but thank you.",
+        "utterance_type": "not_continue_related"
+      },
+      {
+        "utterance": "I'm okay with that!",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "I stay motivated by taking short breaks and listening to my favorite music.",
+        "utterance_type": "answer_2"
+      },
+      {
+        "utterance": "What's the onboarding process like?",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "I've got 22 yrs exp in customer service, worked with international clients, improved my global perspective",
+        "utterance_type": "answer_1"
+      },
+      {
+        "utterance": "I'm disconnecting for now, talk to you soon!",
+        "utterance_type": "later_continue"
+      },
+      {
+        "utterance": "My strategy is to focus on active listening, empathy, and providing a solution that meets their needs.",
+        "utterance_type": "answer_3"
+      },
+      {
+        "utterance": "Is my application still being considered?",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "Staying calm and collected, I address their concerns and provide a swift resolution.",
+        "utterance_type": "answer_3"
+      }
+    ],
+    "signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "signature_prefix": "Utterance Type:",
+    "extended_signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "extended_signature_prefix": "Utterance Type:"
+  }
+}

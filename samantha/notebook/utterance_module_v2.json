@@ -1,0 +1,85 @@
+{
+  "cot": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "utterance": "Are there any opportunities for remote work?",
+        "rationale": "${produce the utterance_type}. We see that the user is inquiring about the possibility of remote work, which is related to the company's work policies.",
+        "utterance_type": "company_related"
+      },
+      {
+        "augmented": true,
+        "utterance": "For sure, let's keep going.",
+        "rationale": "produce the utterance_type. We see that the user is agreeing to continue the conversation, indicating a willingness to proceed.",
+        "utterance_type": "continue_related"
+      },
+      {
+        "augmented": true,
+        "utterance": "Hello! Can you please provide me with an update on my interview status?",
+        "rationale": "feedbacks",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "augmented": true,
+        "utterance": "Hey! I'm interested to know about the company's training programs.",
+        "rationale": "company_related",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "I completely agree. What's next?",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "Good morning! I hope you're doing well. Could you provide me with an update on my interview status?",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "Definitely! I work well with others and adhere to established policies and procedures.",
+        "utterance_type": "qa_4"
+      },
+      {
+        "utterance": "Yes, indeed! I'm quite adept at working in teams and following all necessary procedures.",
+        "utterance_type": "qa_4"
+      },
+      {
+        "utterance": "Hi! What's up with you? \ud83e\udd14",
+        "utterance_type": "greetings"
+      },
+      {
+        "utterance": "How many days off do we get per year? \ud83e\udd14",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "Hello! Hope you're having a great day. Can you give me an update on my evaluation status?",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "I'm not able to continue right now, will talk to you later",
+        "utterance_type": "later_continue"
+      },
+      {
+        "utterance": "I\u2019m not comfortable with this, sorry.",
+        "utterance_type": "not_continue_related"
+      },
+      {
+        "utterance": "Remembering why I started this job in the first place helps a lot.",
+        "utterance_type": "qa_2"
+      },
+      {
+        "utterance": "You got it! I work effectively in team environments and always stick to the policies and procedures.",
+        "utterance_type": "qa_4"
+      },
+      {
+        "utterance": "I stay motivated by taking short breaks and listening to my favorite music.",
+        "utterance_type": "qa_2"
+      }
+    ],
+    "signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "signature_prefix": "Utterance Type:",
+    "extended_signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "extended_signature_prefix": "Utterance Type:"
+  }
+}

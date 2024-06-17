@@ -1,0 +1,81 @@
+{
+  "cot": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "utterance": "Hey! I'm happy to connect with you.",
+        "rationale": "produce the utterance_type. We see the user initiating the conversation in a friendly manner, expressing happiness to connect. This falls under the category of greetings.",
+        "utterance_type": "greetings"
+      },
+      {
+        "augmented": true,
+        "utterance": "Is my application still being considered?",
+        "rationale": "feedbacks. We can see that the user is seeking information about the status of their application, which falls under the category of feedbacks.",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "Okay",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "Hey! What's on your mind?",
+        "utterance_type": "greetings"
+      },
+      {
+        "utterance": "What's the typical career path for someone in the customer service team?",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "Hi! I'm excited to get to know you.",
+        "utterance_type": "greetings"
+      },
+      {
+        "utterance": "Any feedback on my performance during the interview?",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "I'm good with that. What's the next move?",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "I have to go, but we can pick this up later",
+        "utterance_type": "later_continue"
+      },
+      {
+        "utterance": "That's a fantastic idea! Let's make it happen.",
+        "utterance_type": "continue_related"
+      },
+      {
+        "utterance": "Hey! What's new with you?",
+        "utterance_type": "greetings"
+      },
+      {
+        "utterance": "Kindly inform me about my application progress.",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "Are there any opportunities for remote work?",
+        "utterance_type": "company_related"
+      },
+      {
+        "utterance": "I'm not feeling the energy to chat, will catch you later",
+        "utterance_type": "later_continue"
+      },
+      {
+        "utterance": "Please let me know if I'm still in the running?",
+        "utterance_type": "feedbacks"
+      },
+      {
+        "utterance": "Hi! It's nice to reconnect.",
+        "utterance_type": "greetings"
+      }
+    ],
+    "signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "signature_prefix": "Utterance Type:",
+    "extended_signature_instructions": "A basic utterance classifier in a chat conversation.",
+    "extended_signature_prefix": "Utterance Type:"
+  }
+}

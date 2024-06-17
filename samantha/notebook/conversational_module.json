@@ -1,0 +1,26 @@
+{
+  "conversation": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "message": "Sofia share 2 apples with her daughter, how many apples does Sofia keep?",
+        "answer": "Sofia keeps 3 apples.",
+        "msisdn": "18296456177"
+      },
+      {
+        "message": "After that, Michael gives 1 apple to Sofia's daughter, how many apples does Michael have left?",
+        "answer": "Michael has 14 apples left.",
+        "msisdn": "18296456177"
+      },
+      {
+        "message": "Michael has 20 apples, he shared 5 apples with Sofia, how many apples does Michael keep?",
+        "answer": "Michael keeps 15 apples.",
+        "msisdn": "18296456177"
+      }
+    ],
+    "signature_instructions": "You are a helpful assistant. Answer all questions to the best of your ability.",
+    "signature_prefix": "Answer:"
+  }
+}

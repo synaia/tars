@@ -1,0 +1,1 @@
+/opt/homebrew/opt/redis/bin/redis-server /opt/homebrew/etc/redis.conf

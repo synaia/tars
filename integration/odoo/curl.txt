@@ -1,0 +1,32 @@
+curl --location 'http://localhost:8500/applicant/add' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Lionel Messi",
+    "email": "lmessi@fifa.com",
+    "eLevel": "1"
+}'
+
+# Autenticación como "recruitment" 
+# nota: los codigos que representan el perfil del aplicante esta hardcoded aun.
+curl --location 'http://localhost:8500/recording/token' \
+--header 'Content-Type: application/json' \
+--data '{
+    "code": "20241"
+}'
+
+# Autenticación como "applicant" 
+# nota: los codigos que representan el perfil del aplicante esta hardcoded aun.
+curl --location 'http://localhost:8500/recording/token' \
+--header 'Content-Type: application/json' \
+--data '{
+    "code": "20242"
+}'
+
+
+# Para subir el archivo 
+curl --location 'http://localhost:8500/recording/push' \
+--header 'Authorization: bearer  <TOKEN>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "binary_file": "This is a binary file dummy"
+}'
