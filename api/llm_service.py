@@ -52,7 +52,7 @@ async def recording(r: SubscribeRequest):
 async def evaluation(r: SubscribeRequest):
     try:
         evaluation_module = Evaluation()
-        response = evaluation_module(r.msisdn, odoo_message)
+        response = evaluation_module(r.text, r.chat_history, r.utterance_type)
         return {'llm': response}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=ex)

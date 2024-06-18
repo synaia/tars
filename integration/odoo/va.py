@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 import odoorpc
 from .util import get_odoo
-from .schema import Stage, Task, Schedule, Applicant
+from .schema import Stage, Task, Schedule, Applicant, GrammarScore, PronunciationScore
 
 class OdooMessages():
     initial_state = "draft"
@@ -51,6 +51,8 @@ class OdooMessages():
         else:
             state_record = stage.browse(ids)[0]
             state_record.state = st.state
+            import time
+            time.sleep(0.5) #TODO: issue here
             state_record.last_update = datetime.now(timezone.utc)
         
             # self._update_applicant(st.msisdn, st.campaign)
@@ -188,8 +190,8 @@ class OdooMessages():
         """
         states = {
             'new': 1,
-            'recording': 3,
-            'evaluation': 4,
+            'recording': 4,
+            'evaluation': 3,
         }
         appl = self.odoo.env['hr.applicant']
         ids = appl.search([
@@ -198,6 +200,46 @@ class OdooMessages():
         ])
         appl_record = appl.browse(ids)[0]
         appl_record.stage_id = states[state]
+
+
+    def set_grammar_score(self, score: GrammarScore) -> None:
+        if isinstance(score, dict): score = GrammarScore(**score)
+        appl = self.odoo.env['hr.applicant']
+        ids = appl.search([
+            ('phone_sanitized', '=', score.msisdn)
+            #TODO: also filter by campaign
+        ])
+        appl_record = appl.browse(ids)[0]
+        import time
+        time.sleep(1)
+        appl_record.a1_score = score.a1_score
+        appl_record.a2_score = score.a2_score
+        appl_record.b1_score = score.b1_score
+        appl_record.b2_score = score.b2_score
+        appl_record.c1_score = score.c1_score
+        appl_record.c2_score = score.c2_score
+
+    
+    def set_pronunciation_score(self, score: PronunciationScore) -> None:
+        if isinstance(score, dict): score = PronunciationScore(**score)
+        appl = self.odoo.env['hr.applicant']
+        ids = appl.search([
+            ('phone_sanitized', '=', score.msisdn)
+            #TODO: also filter by campaign
+        ])
+        appl_record = appl.browse(ids)[0]
+        import time
+        time.sleep(1)
+        appl_record.cefr_score = score.cefr_score
+        appl_record.flue_c_score = score.fluent_c
+        appl_record.voca_c_score = score.vocab_c
+        appl_record.gram_c_score = score.gramm_c
+        appl_record.pron_score = score.pronun
+        appl_record.flue_score = score.fluent
+        appl_record.voca_score = score.vocab
+        appl_record.gram_score = score.gramm
+
+
         
 
 if __name__ == "__main__":

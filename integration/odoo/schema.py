@@ -60,4 +60,33 @@ class Schedule(BaseModel):
     schedule: str | None = None
 
     class Config:
+        from_attributes = True      
+
+
+class GrammarScore(BaseModel):
+    msisdn: str | None = None
+    a1_score: float | None = None
+    a2_score: float | None = None
+    b1_score: float | None = None
+    b2_score: float | None = None
+    c1_score: float | None = None
+    c2_score: float | None = None
+
+    class Config:
         from_attributes = True        
+
+
+class PronunciationScore(BaseModel):
+    msisdn: str | None = None
+    cefr_score: str | None = None
+    pronun_c: str | None = None
+    fluent_c: str | None = None
+    vocab_c: str | None = None
+    gramm_c: str | None = None
+    pronun: float | None = None
+    fluent: float | None = None
+    vocab: float | None = None
+    gramm: float | None = None
+
+    class Config:
+        from_attributes = True                

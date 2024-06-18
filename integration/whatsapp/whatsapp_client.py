@@ -23,7 +23,7 @@ class WhatsAppClient:
         self.DEBUG = debug
 
     def send_template_message(self, template_name, language_code, phone_number):
-
+        if self.DEBUG: return
         payload = {
             "messaging_product": "whatsapp",
             "to": phone_number,
@@ -60,6 +60,40 @@ class WhatsAppClient:
         assert response.status_code == 200, "Error sending message"
         return response.status_code
     
+
+    def send_typing_on(self, phone_number):
+        if self.DEBUG: return
+        payload = {
+            "messaging_product": 'whatsapp',
+            "to": phone_number,
+            "type": "TEXT",
+            "typing": 'TYPING_ON'
+        }
+        response = requests.post(f"{self.API_URL}/messages", json=payload, headers=self.headers)
+        print(response.status_code)
+        print(response.text)
+        assert response.status_code == 200, "Error sending TYPING_ON"
+        return response.status_code
+    
+    # TO REPLY ...
+    # context: {
+    #       message_id: message.id, // shows the message as a reply to the original user message
+    #     },
+
+    def wa_readed(self, wamid: str):
+        if self.DEBUG: return
+        payload = {
+            "messaging_product": 'whatsapp',
+            "status": "read",
+            "message_id": wamid
+        }
+        response = requests.post(f"{self.API_URL}/messages", json=payload, headers=self.headers)
+        print(response.status_code)
+        print(response.text)
+        assert response.status_code == 200, "Error sending TYPING_ON"
+        return response.status_code
+    
+    
     def convert_to_wav(self, ogg_file_name: str) -> None:
         command = [
             'ffmpeg',
@@ -82,6 +116,7 @@ class WhatsAppClient:
             body = json.loads(response.text)
             url =body['url']
             mediaresponse = requests.get(url, headers=self.headers)
+            audio = ""
             if mediaresponse.status_code == 200:
                 audio = f"{AUDIO_RECORDING_PATH}/{msisdn}-{campaign}.ogg"
                 with open(audio, "wb") as ogg:
@@ -91,7 +126,7 @@ class WhatsAppClient:
                 self.convert_to_wav(audio)
             else:
                 print(f"Failed to download file. Status code: {mediaresponse.status_code}")
-        return response.status_code
+        return response.status_code, audio
 
 
     def process_notification(self, data):
@@ -105,6 +140,7 @@ class WhatsAppClient:
                         for message in value["messages"]:
                             if message["type"] == "text":
                                 from_no = message["from"]
+                                id = message["id"]
                                 message_body = message["text"]["body"]
                                 prompt = message_body
                                 print(f"Ack from FastAPI-WtsApp Webhook: {message_body}")
@@ -112,16 +148,19 @@ class WhatsAppClient:
                                     "statusCode": 200,
                                     "body": prompt,
                                     "from_no": from_no,
+                                    "id": id,
                                     "isBase64Encoded": False,
                                     "type": "text"
                                 }
                             if message["type"] == "audio":
                                 from_no = message["from"]
+                                id = message["id"]
                                 audio_id = message['audio']['id']
                                 return {
                                     "statusCode": 200,
                                     "audio_id": audio_id,
                                     "from_no": from_no,
+                                    "id": id,
                                     "isBase64Encoded": False,
                                     "type": "audio"
                                 }

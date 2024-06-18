@@ -6,9 +6,9 @@ from dspy import Predict, settings
 from dspy import GROQ
 from rich import print
 from dotenv import dotenv_values
-# from samantha.src.state_machine import Stage
+from samantha.src.machinery import SchedulerMachine
 # from integration.odoo.va import get_odoo, Messages
-# from integration.whatsapp.whatsapp_client import WhatsAppClient
+from integration.whatsapp.whatsapp_client import WhatsAppClient
 import odoorpc
 
 
@@ -35,40 +35,40 @@ def subscribe(request: Request):
 
 
 
-# def manage_message(msisdn: str, text: str, stage: Stage, audio_id: str = None, message_type: str = "text"):
-#     wtsapp_client = WhatsAppClient()
-#     if message_type == "audio":
-#        message = stage.manage_audio(audio_id)
-#     else:
-#         message = stage.entry(text)
-#     wtsapp_client.send_text_message(phone_number=msisdn, message=message)
+def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text"):
+    wtsapp_client = WhatsAppClient()
+    machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client)
+    if message_type == "audio":
+        machine.manage_audio(audio_id)
+    else:
+        import uuid # simulate whatsapp id
+        machine(text, wamid)
 
 
 @router.post("/", status_code=200)
 async def process_notifications(request: Request, background_tasks: BackgroundTasks):
-    pass
-    # data = await request.json()
-    # wtsapp_client = WhatsAppClient()
-    # print("We received ")
-    # print(data)
-    # response = wtsapp_client.process_notification(data)
-    # try:
-    #     if response["statusCode"] == 200 and response["type"] == "text":
-    #         if response["body"] and response["from_no"]:
-    #             msisdn = response["from_no"]
-    #             campaign = "GET_FROM_SENDER"
-    #             text = response['body']
-    #             stage = Stage(msisdn=msisdn, campaign=campaign, odoo_message=odoo_message, wtsapp_client=wtsapp_client)
-    #             background_tasks.add_task(manage_message, msisdn=msisdn, text=text, stage=stage,)
-    #     if response["statusCode"] == 200 and response["type"] == "audio":
-    #         msisdn = response["from_no"]
-    #         audio_id = response["audio_id"]
-    #         campaign = "GET_FROM_SENDER"
-    #         stage = Stage(msisdn=msisdn, campaign=campaign, odoo_message=odoo_message, wtsapp_client=wtsapp_client)
-    #         background_tasks.add_task(manage_message, msisdn=msisdn, text=None,  stage=stage, audio_id=audio_id, message_type="audio")
-    # except Exception as ex:
-    #     print(ex)
-    # return jsonable_encoder({"status": "success"})
+    data = await request.json()
+    wtsapp_client = WhatsAppClient()
+    print("We received ")
+    print(data)
+    response = wtsapp_client.process_notification(data)
+    try:
+        if response["statusCode"] == 200 and response["type"] == "text":
+            if response["body"] and response["from_no"]:
+                msisdn = response["from_no"]
+                wamid = response["id"]
+                campaign = "GET_FROM_SENDER"
+                text = response['body']
+                background_tasks.add_task(manage_message, msisdn=msisdn, campaign=campaign, text=text, wamid=wamid)
+        if response["statusCode"] == 200 and response["type"] == "audio":
+            msisdn = response["from_no"]
+            wamid = response["id"]
+            audio_id = response["audio_id"]
+            campaign = "GET_FROM_SENDER"
+            background_tasks.add_task(manage_message, msisdn=msisdn, campaign=campaign, text=None, wamid=wamid, audio_id=audio_id, message_type="audio")
+    except Exception as ex:
+        print(ex)
+    return jsonable_encoder({"status": "success"})
 
 
 @router.post("/schedule_message/", status_code=200)

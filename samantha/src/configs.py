@@ -4,6 +4,7 @@ import torch
 import dspy
 import redis
 from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Boolean
@@ -131,6 +132,13 @@ fine_tuned_model = RobertaForSequenceClassification.from_pretrained(model_save_p
 fine_tuned_tokenizer = RobertaTokenizerFast.from_pretrained(tokenizer_save_path)
 
 print("⚡️ Model [fine_tuned_model] loaded.")
+
+
+# Load the tokenizer and model
+cefr_grammar_tokenizer = AutoTokenizer.from_pretrained("hafidikhsan/distilbert-base-uncased-english-cefr-lexical-evaluation-dt-v1")
+cefr_grammar_model = AutoModelForSequenceClassification.from_pretrained("hafidikhsan/distilbert-base-uncased-english-cefr-lexical-evaluation-dt-v1")
+print("⚡️ Model [distilbert-base-uncased-english-cefr] loaded.")
+
 
 odoo_message = OdooMessages(get_odoo())
 print('⚡️ Odoo RPC loaded')
