@@ -27,3 +27,4 @@
 /staticfiles/
 /.vscode/
 .DS_Store
+integration/speechace/__pycache__/

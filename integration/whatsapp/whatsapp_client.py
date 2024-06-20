@@ -99,6 +99,9 @@ class WhatsAppClient:
             'ffmpeg',
             '-y',
             '-i', ogg_file_name,
+            '-acodec', 'pcm_s16le',
+            '-ac', '1',
+            '-ar', '16000',
             ogg_file_name.replace(".ogg", ".wav")
         ]
         try:
@@ -174,8 +177,9 @@ class WhatsAppClient:
 
 
 if __name__ == "__main__":
-    client = WhatsAppClient()
+    client = WhatsAppClient(debug=True)
     # send a template message
-    client.process_audio(audio_id="8076039309081304", msisdn="18296456177", campaign="GET_FROM_SENDER")
+    # client.process_audio(audio_id="8076039309081304", msisdn="18296456177", campaign="GET_FROM_SENDER")
+    client.convert_to_wav(ogg_file_name="/Users/beltre.wilton/apps/preescrening_audios/18296456177-GET_FROM_SENDER.ogg")
     
     

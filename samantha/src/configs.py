@@ -14,8 +14,7 @@ from dotenv import dotenv_values
 from dspy.retrieve.pgvector_rm import PgVectorRM
 
 from .embedding_model import embedd
-from integration.odoo.util import get_odoo
-from integration.odoo.va import OdooMessages
+
 
 
 secret = dotenv_values('.secret')
@@ -76,27 +75,6 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 print('⚡️ Postgres loaded')
-
-class ChatHistory(Base):
-    __tablename__ = "chat_history"
-    id = Column(Integer, primary_key=True, index=True)
-    msisdn = Column(String, index=True)
-    campaign = Column(String, index=True)
-    message = Column(Text)
-    source = Column(Text)
-    whatsapp_id = Column(String, index=True)
-    sending_date = Column(DateTime)
-    readed = Column(Boolean)
-    collected = Column(Boolean)
-
-
-class VAStage(Base):
-    __tablename__ = "va_stage"
-    id = Column(Integer, primary_key=True, index=True)
-    msisdn = Column(String, index=True)
-    campaign = Column(String, index=True)
-    state = Column(String)
-    last_update = Column(DateTime)
     
 
 def get_device():
@@ -139,6 +117,3 @@ cefr_grammar_tokenizer = AutoTokenizer.from_pretrained("hafidikhsan/distilbert-b
 cefr_grammar_model = AutoModelForSequenceClassification.from_pretrained("hafidikhsan/distilbert-base-uncased-english-cefr-lexical-evaluation-dt-v1")
 print("⚡️ Model [distilbert-base-uncased-english-cefr] loaded.")
 
-
-odoo_message = OdooMessages(get_odoo())
-print('⚡️ Odoo RPC loaded')

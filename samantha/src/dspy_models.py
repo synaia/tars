@@ -1,7 +1,7 @@
 
 import dspy
 from dsp.templates import passages2text
-from integration.odoo import va
+from samantha.src.machinery import DataManager
 from .configs import retriever_model
 
 
@@ -39,13 +39,13 @@ class ApplicanStateSignature(dspy.Signature):
     
 
 class ApplicantState(dspy.Module):
-    def __init__(self, msisdn: str,  odoo_message: va.OdooMessages) -> None:
+    def __init__(self, msisdn: str,  data: DataManager) -> None:
         super().__init__()
         self.msisdn = msisdn
-        self.odoo_message = odoo_message
+        self.data = data
 
     def forward(self, question: str) -> dspy.Prediction:
-        state = self.odoo_message.get_applicant_state(msisdn=self.msisdn)
+        state = self.data.get_applicant_state(msisdn=self.msisdn)
         ApplicanStateSignature.__doc__ = ApplicanStateSignature.__doc__.format(state)
         applicant = dspy.ChainOfThought(ApplicanStateSignature)
         response = applicant(question=question)
@@ -288,7 +288,7 @@ class EvaluationSignature(dspy.Signature):
 
 
 class Evaluation(dspy.Module):
-    def __init__(self, msisdn: str, odoo_message: va.OdooMessages):
+    def __init__(self, msisdn: str, data: DataManager):
         super().__init__()
         self.signature = EvaluationSignature
         self.predict = dspy.ChainOfThought(self.signature)
@@ -298,7 +298,7 @@ class Evaluation(dspy.Module):
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
-        self.applicant = ApplicantState(msisdn=msisdn, odoo_message=odoo_message)
+        self.applicant = ApplicantState(msisdn=msisdn, data=data)
         self.self_back = dspy.Predict(SelfSignature)
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:

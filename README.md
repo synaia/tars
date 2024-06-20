@@ -34,9 +34,24 @@ sudo vim /etc/postgresql/14/main/postgresql.conf -> change timezone
 sudo systemctl restart postgresql
 
 
+
+
+
+INSTALL conda Digital Ocean
+
+curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o Miniconda3-latest-Linux-x86_64.sh
+file Miniconda3-latest-Linux-x86_64.sh 
+chmod 755 Miniconda3-latest-Linux-x86_64.sh 
+./Miniconda3-latest-Linux-x86_64.sh
+sudo ln -s /home/wilton/miniconda3/bin/conda /usr/bin/conda
+
+/usr/lib/postgresql/14/bin/postgres --version
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+sudo apt install postgresql-14-pgvector
+
 CREATE EXTENSION vector;
 BEGIN;
-
 
 CREATE TABLE IF NOT EXISTS public.company_info
 (

@@ -6,11 +6,13 @@ from typing import Any, List, Dict, Sequence, Type
 from datetime import datetime, timedelta
 import transitions
 from integration.whatsapp.whatsapp_client import WhatsAppClient
-
+from integration.speechace.client import SpeechaceClient
+from integration.odoo.schema import PronunciationScore, GrammarScore, Stage
+from integration.odoo.tables import (
+    odoo_message, ChatHistory, VAStage, HrApplicant, RecruitmentStage, SpeechaceLog
+)
 from samantha.src.configs import (
     SessionLocal,
-    ChatHistory,
-    VAStage,
     scheduler,
     redis_conn,
     get_device,
@@ -19,7 +21,6 @@ from samantha.src.configs import (
     cefr_grammar_model,
     cefr_grammar_tokenizer,
     id2label,
-    odoo_message
 )
 
 
@@ -72,8 +73,8 @@ class SchedulerMachine(transitions.Machine):
         return response['llm']
     
     
-    def evaluation_module(self,text: str, chat_history: list[str], utterance_type: str) -> str:
-        data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
+    def evaluation_module(self, text: str, chat_history: list[str], utterance_type: str) -> str:
+        data = {'msisdn': self.msisdn, 'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
         response = requests.post("http://localhost:9091/llm/evaluation", json=data)
         response = response.json()
         return response['llm']
@@ -184,6 +185,10 @@ class SchedulerMachine(transitions.Machine):
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             #TODO: call method API here to evaluate audio.
             print(audio)
+            scores = SpeechaceClient().request(text="Is there room for growth within the company?", audio=audio)
+            data = {"cefr_score": scores['text_score']['cefr_score']['pronunciation']}
+            scheduler.add_job(self.set_pronun_score_wrapper, 'date', run_date=None, args=[data])
+            scheduler.add_job(self.data.speechace_log, 'date', run_date=None, args=[self.msisdn, self.campaign, scores])
             return
         if self.state == "evaluation":
             message = "Your audio has been received and is currently being validated! 🎧"
@@ -302,11 +307,11 @@ class SchedulerMachine(transitions.Machine):
 
 
     def set_grammar_score_wrapper(self, score: dict) -> None:
-        odoo_message.set_grammar_score(score)
+        self.data.set_grammar_score(score)
 
     
     def set_pronun_score_wrapper(self, score: dict) -> None:
-        odoo_message.set_pronunciation_score(score)
+        self.data.set_pronunciation_score(score)
 
 
     def validate_grammar(self, text: str):
@@ -337,13 +342,8 @@ class SchedulerMachine(transitions.Machine):
             "fluent": 0.34,
             "vocab": 0.36,
             "gramm": 0.64,
-
         }
         scheduler.add_job(self.set_grammar_score_wrapper, 'date', run_date=None, args=[score])
-
-
-   
-
 
     @property
     def chat_history(self) -> List[str]:
@@ -521,14 +521,14 @@ class DataManager():
         state = self.get_mem_state(msisdn, campaign)
         if len(state) == 0:
             db = SessionLocal()
-            va_stage = db.query(VAStage).filter_by(msisdn=msisdn, campaign=campaign).first()
-            if va_stage is None:
-                va_stage = VAStage(msisdn=msisdn, campaign=campaign, state=DEFAULT_STATE, last_update=self.now_)
-                db.add(va_stage)
+            va_stage_app = db.query(VAStage).filter_by(msisdn=msisdn, campaign=campaign).first()
+            if va_stage_app is None:
+                va_stage_app = VAStage(msisdn=msisdn, campaign=campaign, state=DEFAULT_STATE, last_update=self.now_)
+                db.add(va_stage_app)
                 db.commit()
-                db.refresh(va_stage)
+                db.refresh(va_stage_app)
                 db.close()
-            self.set_state(va_stage.msisdn, va_stage.campaign, va_stage.state, va_stage.last_update)
+            self.set_state(va_stage_app.msisdn, va_stage_app.campaign, va_stage_app.state, va_stage_app.last_update)
             state = self.get_mem_state(msisdn, campaign)
         return state
 
@@ -555,18 +555,129 @@ class DataManager():
 
     def odoo_update_state(self, msisdn: str, campaign: str, state: str):
         if state in ["new", "recording", "evaluation"]:
-            odoo_message.applicant_stage(state, msisdn)
-        odoo_message.update_stage({
+            self.applicant_stage(state, msisdn)
+        self.update_stage({
             'msisdn': msisdn,
             'campaign': campaign,
             'state': state,
         })
 
 
+    def update_stage(self, st: Stage) -> None:
+        if isinstance(st, dict): st = Stage(**st)
+        db = SessionLocal()
+        record = db.query(VAStage).filter_by(msisdn=st.msisdn, campaign=st.campaign).first()
+        if record:
+            record.state = st.state
+            record.last_update = self.now_
+        else:
+            new_record = VAStage(
+                msisdn=st.msisdn,
+                campaign=st.campaign,
+                state=st.state,
+                last_update=self.now_
+            )
+            db.add(new_record)
+        db.commit()
+        db.close()
+
+
+    def get_applicant_state(self, msisdn: str) -> str:
+        db = SessionLocal()
+        try:
+            record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
+            applicant_state = db.query(RecruitmentStage).filter_by(id=record.stage_id).first()
+            return applicant_state.name['en_US']
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+
+    def _update_applicant(self, msisdn: str, campaign: str) -> None:
+        db = SessionLocal()
+        record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
+        record.lead_last_update = datetime.now(self.now_)
+        db.commit()
+        db.close()
+
+    
+    def applicant_stage(self, state: str, msisdn: str):
+        """
+        1 - New (new -> basic form completed)
+        2 - Grammar Check ()
+        3 - QA Assestment (recording -> assesmetn have completed)
+        7 - Recording (recording voice note received)
+        4 - Evaluation (evaluation)
+        """
+        states = {
+            'new': 1,
+            'recording': 4,
+            'evaluation': 3,
+        }
+        db = SessionLocal()
+        try:
+            record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
+            record.stage_id = states[state]
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+
+    def set_grammar_score(self, score: GrammarScore) -> None:
+        if isinstance(score, dict): score = GrammarScore(**score)
+        db = SessionLocal()
+        try:
+            record = db.query(HrApplicant).filter_by(phone_sanitized=score.msisdn).first()
+            record.a1_score = score.a1_score
+            record.a2_score = score.a2_score
+            record.b1_score = score.b1_score
+            record.b2_score = score.b2_score
+            record.c1_score = score.c1_score
+            record.c2_score = score.c2_score
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+    
+    def set_pronunciation_score(self, score: PronunciationScore) -> None:
+        if isinstance(score, dict): score = PronunciationScore(**score)
+        db = SessionLocal()
+        try:
+            record = db.query(HrApplicant).filter_by(phone_sanitized=score.msisdn).first()
+            record.cefr_score = score.cefr_score
+            # record.flue_c_score = score.fluent_c
+            # record.voca_c_score = score.vocab_c
+            # record.gram_c_score = score.gramm_c
+            # record.pron_score = score.pronun
+            # record.flue_score = score.fluent
+            # record.voca_score = score.vocab
+            # record.gram_score = score.gramm
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+    def speechace_log(self, msisdn: str, campaign: str, response: dict):
+        log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, response_date=self.now_)
+        db = SessionLocal()
+        try:
+           db.add(log)
+           db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+
 
 if __name__ == "__main__":
     import uuid
-
     wtsapp_client = WhatsAppClient(debug=True)
     machine = SchedulerMachine(msisdn="18296456177", campaign="BOTPROS",  wtsapp_client=wtsapp_client)
     # import os

@@ -36,7 +36,7 @@ def subscribe(request: Request):
 
 
 def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text"):
-    wtsapp_client = WhatsAppClient()
+    wtsapp_client = WhatsAppClient(debug=True)
     machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client)
     if message_type == "audio":
         machine.manage_audio(audio_id)
@@ -48,7 +48,7 @@ def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: 
 @router.post("/", status_code=200)
 async def process_notifications(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    wtsapp_client = WhatsAppClient()
+    wtsapp_client = WhatsAppClient(debug=True)
     print("We received ")
     print(data)
     response = wtsapp_client.process_notification(data)

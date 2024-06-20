@@ -37,7 +37,7 @@ class Stage(BaseModel):
     msisdn: str | None = None
     campaign: str | None = None
     state: str | None = None
-    lm_message: str | None = None
+    last_update: str | None = None
 
     class Config:
         from_attributes = True

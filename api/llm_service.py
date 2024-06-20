@@ -5,7 +5,8 @@ from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from dotenv import dotenv_values
 from samantha.src.dspy_models import Draft, New, Evaluation, Recording
-from samantha.src.configs import odoo_message
+from samantha.src.machinery import DataManager
+
 
 router = APIRouter(prefix='/llm', tags=['llm'])
 
@@ -51,7 +52,7 @@ async def recording(r: SubscribeRequest):
 @router.post("/evaluation", status_code=200)
 async def evaluation(r: SubscribeRequest):
     try:
-        evaluation_module = Evaluation()
+        evaluation_module = Evaluation(msisdn=r.msisdn, data=DataManager())
         response = evaluation_module(r.text, r.chat_history, r.utterance_type)
         return {'llm': response}
     except Exception as ex:
