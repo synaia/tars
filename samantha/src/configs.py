@@ -98,6 +98,7 @@ class_names = [
     "trouble",
     "himself",
     "continue_yes",
+    "thanks"
 ]
 
 id2label = {i: label for i, label in enumerate(class_names)}

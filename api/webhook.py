@@ -34,21 +34,19 @@ def subscribe(request: Request):
     return "Authentication failed. Invalid Token."
 
 
-
 def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text"):
-    wtsapp_client = WhatsAppClient(debug=True)
+    wtsapp_client = WhatsAppClient(debug=False)
     machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client)
     if message_type == "audio":
         machine.manage_audio(audio_id)
     else:
-        import uuid # simulate whatsapp id
         machine(text, wamid)
 
 
 @router.post("/", status_code=200)
 async def process_notifications(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    wtsapp_client = WhatsAppClient(debug=True)
+    wtsapp_client = WhatsAppClient(debug=False)
     print("We received ")
     print(data)
     response = wtsapp_client.process_notification(data)

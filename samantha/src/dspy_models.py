@@ -14,6 +14,7 @@ class_names = [
     "trouble",
     "himself",
     "continue_yes",
+    "thanks"
 ]
 
 
@@ -127,6 +128,12 @@ class GreetingSignature(dspy.Signature):
     text: str = dspy.InputField(desc="user input text")
     response: str = dspy.OutputField(desc="often between 3 and 5 words")
 
+
+class ThanksSignature(dspy.Signature):
+    """Generate a "you're welcome" response to the user's thanks without offering assistance, use emoji."""
+    text: str = dspy.InputField(desc="user input text")
+    response: str = dspy.OutputField(desc="often between 5 and 7 words")
+
 class NoFeedBackSignature(dspy.Signature):
     """Kindly reply back that there is no feedback yet"""
     text: str = dspy.InputField(desc="user input text")
@@ -155,6 +162,7 @@ class Draft(dspy.Module):
         # self.classificator = UtteranceClassificator()
         # self.classificator.load('./samantha/src/compiled_json_ref/utterance_module_v3.json')
         self.greeting = dspy.ChainOfThought(GreetingSignature)
+        self.thanksback = dspy.ChainOfThought(ThanksSignature)
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
@@ -176,6 +184,8 @@ class Draft(dspy.Module):
              output.append(self.greeting(text=user_input).response)
         elif utterance_type == "company":
             output.append(self.company(question=user_input, chat_history=chat_history)['answer'])
+        elif utterance_type == "thanks":
+            output.append(self.thanksback(text=user_input).response)
        
         output.append(response.response)
         return "\n".join(output), utterance_type
@@ -197,6 +207,7 @@ class New(dspy.Module):
         # self.classificator = UtteranceClassificator()
         # self.classificator.load('./samantha/src/compiled_json_ref/utterance_module_v3.json')
         self.greeting = dspy.ChainOfThought(GreetingSignature)
+        self.thanksback = dspy.ChainOfThought(ThanksSignature)
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
@@ -227,6 +238,8 @@ class New(dspy.Module):
             pass
         elif utterance_type == "himself":
             output.append(self.self_back(text=user_input).response)
+        elif utterance_type == "thanks":
+            output.append(self.thanksback(text=user_input).response)
         
         output.append(response.response)
         return "\n".join(output), utterance_type
@@ -248,6 +261,7 @@ class Recording(dspy.Module):
         # self.classificator = UtteranceClassificator()
         # self.classificator.load('./samantha/src/compiled_json_ref/utterance_module_v3.json')
         self.greeting = dspy.ChainOfThought(GreetingSignature)
+        self.thanksback = dspy.ChainOfThought(ThanksSignature)
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
@@ -275,6 +289,8 @@ class Recording(dspy.Module):
             pass
         elif utterance_type == "himself":
             output.append(self.self_back(text=user_input).response)
+        elif utterance_type == "thanks":
+            output.append(self.thanksback(text=user_input).response)            
         
         output.append(response.response)
         return "\n".join(output), utterance_type
@@ -295,6 +311,7 @@ class Evaluation(dspy.Module):
         # self.classificator = UtteranceClassificator()
         # self.classificator.load('./samantha/src/compiled_json_ref/utterance_module_v3.json')
         self.greeting = dspy.ChainOfThought(GreetingSignature)
+        self.thanksback = dspy.ChainOfThought(ThanksSignature)
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
@@ -322,6 +339,8 @@ class Evaluation(dspy.Module):
             pass
         elif utterance_type == "himself":
             output.append(self.self_back(text=user_input).response)
-        
+        elif utterance_type == "thanks":
+            output.append(self.thanksback(text=user_input).response)
+
         output.append(response.response)
         return "\n".join(output), utterance_type

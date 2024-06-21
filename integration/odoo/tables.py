@@ -108,6 +108,7 @@ class SpeechaceLog(Base):
     msisdn = Column(String(50), nullable=False)
     campaign = Column(String(100), nullable=False)
     response = Column(JSON)
+    audio_path = Column(String(300))
     response_date = Column(DateTime)
 
 # esta clase es temporar para crear los applicantes.

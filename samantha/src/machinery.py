@@ -180,15 +180,16 @@ class SchedulerMachine(transitions.Machine):
     def manage_audio(self, audio_id: str):
         if self.state == "recording":
             self.step_completed()
-            _, audio = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign)
+            status_code, audio = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign)
             message = "Your voice note has been received! ✅ thanks a lot! You've made great progress—well done! 🚀 We have successfully completed the process."
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             #TODO: call method API here to evaluate audio.
             print(audio)
-            scores = SpeechaceClient().request(text="Is there room for growth within the company?", audio=audio)
-            data = {"cefr_score": scores['text_score']['cefr_score']['pronunciation']}
-            scheduler.add_job(self.set_pronun_score_wrapper, 'date', run_date=None, args=[data])
-            scheduler.add_job(self.data.speechace_log, 'date', run_date=None, args=[self.msisdn, self.campaign, scores])
+            if status_code == 200:
+                scores = SpeechaceClient().request(text="If someone is upset on WhatsApp, you can be kind and listen to them. You can say sorry and try to help them feel better. Maybe you can ask what they need and find a way to fix the problem.", audio=audio)
+                data = {"cefr_score": scores['text_score']['cefr_score']['pronunciation']}
+                scheduler.add_job(self.set_pronun_score_wrapper, 'date', run_date=None, args=[data])
+                scheduler.add_job(self.data.speechace_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio, scores])
             return
         if self.state == "evaluation":
             message = "Your audio has been received and is currently being validated! 🎧"
@@ -311,7 +312,7 @@ class SchedulerMachine(transitions.Machine):
 
     
     def set_pronun_score_wrapper(self, score: dict) -> None:
-        self.data.set_pronunciation_score(score)
+        self.data.set_pronunciation_score(self.msisdn, score)
 
 
     def validate_grammar(self, text: str):
@@ -644,11 +645,11 @@ class DataManager():
             db.close()
 
     
-    def set_pronunciation_score(self, score: PronunciationScore) -> None:
+    def set_pronunciation_score(self, msisdn: str, score: PronunciationScore) -> None:
         if isinstance(score, dict): score = PronunciationScore(**score)
         db = SessionLocal()
         try:
-            record = db.query(HrApplicant).filter_by(phone_sanitized=score.msisdn).first()
+            record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
             record.cefr_score = score.cefr_score
             # record.flue_c_score = score.fluent_c
             # record.voca_c_score = score.vocab_c
@@ -663,8 +664,8 @@ class DataManager():
         finally:
             db.close()
 
-    def speechace_log(self, msisdn: str, campaign: str, response: dict):
-        log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, response_date=self.now_)
+    def speechace_log(self, msisdn: str, campaign: str, audio_path: str, response: dict):
+        log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, audio_path=audio_path, response_date=self.now_)
         db = SessionLocal()
         try:
            db.add(log)
@@ -685,6 +686,6 @@ if __name__ == "__main__":
     while True:
         text = input("🥸 ")
         if text.lower() == "quit": break
-        machine(text, str(uuid.uuid4()))
+        r = machine(text, str(uuid.uuid4()))
 
     redis_conn.flushdb()

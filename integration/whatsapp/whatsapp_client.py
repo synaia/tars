@@ -44,7 +44,9 @@ class WhatsAppClient:
 
 
     def send_text_message(self, message, phone_number):
-        if self.DEBUG: return
+        if self.DEBUG:
+            return
+        
         payload = {
             "messaging_product": 'whatsapp',
             "to": phone_number,
@@ -119,9 +121,8 @@ class WhatsAppClient:
             body = json.loads(response.text)
             url =body['url']
             mediaresponse = requests.get(url, headers=self.headers)
-            audio = ""
+            audio = f"{AUDIO_RECORDING_PATH}/{msisdn}-{campaign}.ogg"
             if mediaresponse.status_code == 200:
-                audio = f"{AUDIO_RECORDING_PATH}/{msisdn}-{campaign}.ogg"
                 with open(audio, "wb") as ogg:
                     for chunk in mediaresponse.iter_content(chunk_size=1024):
                         ogg.write(chunk)
@@ -129,7 +130,7 @@ class WhatsAppClient:
                 self.convert_to_wav(audio)
             else:
                 print(f"Failed to download file. Status code: {mediaresponse.status_code}")
-        return response.status_code, audio
+        return response.status_code, audio.replace(".ogg", ".wav")
 
 
     def process_notification(self, data):
@@ -177,7 +178,7 @@ class WhatsAppClient:
 
 
 if __name__ == "__main__":
-    client = WhatsAppClient(debug=True)
+    client = WhatsAppClient(debug=False)
     # send a template message
     # client.process_audio(audio_id="8076039309081304", msisdn="18296456177", campaign="GET_FROM_SENDER")
     client.convert_to_wav(ogg_file_name="/Users/beltre.wilton/apps/preescrening_audios/18296456177-GET_FROM_SENDER.ogg")
