@@ -2,11 +2,11 @@ import torch
 import torch.nn.functional as F
 from enum import Enum
 import requests
-from typing import Any, List, Dict, Sequence, Type
+from typing import Any, List, Dict
 from datetime import datetime, timedelta
 import transitions
 from integration.whatsapp.whatsapp_client import WhatsAppClient
-from integration.speechace.client import SpeechaceClient
+from integration.speech.client import SpeechaceClient
 from integration.odoo.schema import PronunciationScore, GrammarScore, Stage
 from integration.odoo.tables import (
     odoo_message, ChatHistory, VAStage, HrApplicant, RecruitmentStage, SpeechaceLog
@@ -22,6 +22,8 @@ from samantha.src.configs import (
     cefr_grammar_tokenizer,
     id2label,
 )
+from samantha.src.static_messages import random_message, basic_form, assesment_form, voice_note, voice_note_received_yet, switch_to_text, assignment_reminder, friendly_reminder, voice_note_reminder
+
 
 
 TOLERANCE = 3 # seconds of wait ...
@@ -44,8 +46,6 @@ class SchedulerMachine(transitions.Machine):
         self.msisdn = msisdn
         self.campaign = campaign
         self.wtsapp_client = wtsapp_client
-
-        self.chat_len = len(self.chat_history)
 
         m_state = self.data.get_state(msisdn, campaign)
         transitions.Machine.__init__(self, states=states, initial=m_state['state'])
@@ -123,16 +123,10 @@ class SchedulerMachine(transitions.Machine):
 
     
     def entry(self, text: str, utterance_type: str) -> str:
-        #TODO: model for find utterence type
-        # Tokenize the input text
-        import time
-        start_time = time.time()
-        end_time = (time.time() - start_time)
         self.state = self.data.get_state(self.msisdn, self.campaign)['state']
         response = self.router(text, utterance_type)
         return response
-        # self.hist(text, response)
-        # return utterance_type, end_time
+
 
     def router(self, text: str, utterance_type: str) -> str: 
         if self.state == "draft" and text == "#1": # form completed
@@ -141,13 +135,13 @@ class SchedulerMachine(transitions.Machine):
             except Exception as ex:
                 print(f"Problemas con odoo rpc en threas {ex}")
             self.step_completed()
-            return "Thank you for complete the basic form 🙌🏼 The next step is about filling the assessment below ⤵️"
+            return random_message(basic_form)
         
         if self.state == "new" and text.startswith("#2"): #assessment completed
             text = text.replace("#2 ", '')
             self.step_completed()
             self.validate_grammar(text)
-            return "Hey, thank you very much! You've taken a significant step forward—congratulations! 🚀 The final step is to send me a voice note 🗣️ lasting no more than 2 minutes for evaluation purposes."
+            return random_message(assesment_form)
         
         if self.state == "draft_appointment":
             pass
@@ -181,7 +175,7 @@ class SchedulerMachine(transitions.Machine):
         if self.state == "recording":
             self.step_completed()
             status_code, audio = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign)
-            message = "Your voice note has been received! ✅ thanks a lot! You've made great progress—well done! 🚀 We have successfully completed the process."
+            message = random_message(voice_note)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             #TODO: call method API here to evaluate audio.
             print(audio)
@@ -192,11 +186,11 @@ class SchedulerMachine(transitions.Machine):
                 scheduler.add_job(self.data.speechace_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio, scores])
             return
         if self.state == "evaluation":
-            message = "Your audio has been received and is currently being validated! 🎧"
+            message = random_message(voice_note_received_yet)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             return
         
-        message = "Please switch to text communication for the time being. Appreciate it! 💬"
+        message = random_message(switch_to_text)
         self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
 
     
@@ -247,14 +241,15 @@ class SchedulerMachine(transitions.Machine):
          #TODO: send BACK to WhatsApp here !!
         self.state = self.data.get_state(self.msisdn, self.campaign)['state']
         if self.state == "draft":
-            message = f"🤖 Don't forget to take a moment to complete the form! It's easy and only takes 1-2 minutes 😊📝"
+            message = random_message(assignment_reminder)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
         elif self.state == "new":
-            message = f"🤖 Just a friendly reminder to complete the evaluation 🌟—you're one step closer to your hiring! 🚀😊"
+            message = random_message(friendly_reminder)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
         elif self.state == "recording":
-            message = f"🤖 Please don't forget the voice note 🗣️! It's the last step, and it shouldn't be more than 2 minutes. Thank you! 😊"
+            message = random_message(voice_note_reminder)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
+        print(message)
 
 
     def message_deliver(self, message: str, whatsapp_id: str):
@@ -679,7 +674,7 @@ class DataManager():
 
 if __name__ == "__main__":
     import uuid
-    wtsapp_client = WhatsAppClient(debug=True)
+    wtsapp_client = WhatsAppClient()
     machine = SchedulerMachine(msisdn="18296456177", campaign="BOTPROS",  wtsapp_client=wtsapp_client)
     # import os
     # os.system('clear')

@@ -149,8 +149,9 @@ class SelfSignature(dspy.Signature):
 class DraftSignature(dspy.Signature):
     """"Ask user to please take a moment to complete the form."""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
-    user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
-    response: str = dspy.OutputField(desc="Please take a moment to complete the form below ⤵️, often between 10 and 12 words")
+    # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    user_input: str = dspy.InputField(format=str, desc="user input text")
+    response: str = dspy.OutputField(format=str, desc="Maintain the original meaning, Express the following in alternative way: 'Please take a moment to complete the form below ⤵️', often between 10 and 12 words")
 
 
 class Draft(dspy.Module):
@@ -194,8 +195,9 @@ class Draft(dspy.Module):
 class NewSignature(dspy.Signature):
     """"Kindly request the user to take a moment to fill the assessment"""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
-    user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
-    response: str = dspy.OutputField(desc="Please take a moment to fill the assessment below ⤵️, often between 10 and 12 words")
+    # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    user_input: str = dspy.InputField(format=str, desc="user input text")
+    response: str = dspy.OutputField(desc="Maintain the original meaning, Express the following in alternative way: 'Please take a moment to fill the assessment below ⤵️', often between 10 and 12 words")
 
 
 class New(dspy.Module):
@@ -238,7 +240,7 @@ class New(dspy.Module):
             pass
         elif utterance_type == "himself":
             output.append(self.self_back(text=user_input).response)
-        elif utterance_type == "thanks":
+        elif utterance_type == "thanks": # and continue_yes ?
             output.append(self.thanksback(text=user_input).response)
         
         output.append(response.response)
@@ -249,8 +251,9 @@ class New(dspy.Module):
 class RecordingSignature(dspy.Signature):
     """"Kindly ask the user to take a moment and send a voice note 🗣️ of no more than 2 minutes for evaluation purposes"""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
-    user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
-    response: str = dspy.OutputField(desc="Please take a moment and send a voice note 🗣️ of no more than 2 minutes for evaluation purposes, often between 10 and 12 words")
+    # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    user_input: str = dspy.InputField(format=str, desc="user input text")
+    response: str = dspy.OutputField(desc="Maintain the original meaning, Express the following in alternative way: 'Please take a moment and send a voice note 🗣️ of no more than 2 minutes for evaluation purposes', often between 10 and 12 words")
 
 
 class Recording(dspy.Module):
@@ -299,7 +302,8 @@ class Recording(dspy.Module):
 class EvaluationSignature(dspy.Signature):
     """"Kindly response or interact with user inputs"""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
-    user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    user_input: str = dspy.InputField(format=str, desc="user input text")
     response: str = dspy.OutputField(desc="Often between 10 and 12 words")
 
 

@@ -7,6 +7,8 @@ from dotenv import dotenv_values
 
 secret = dotenv_values('.secret')
 AUDIO_RECORDING_PATH = secret["AUDIO_RECORDING_PATH"]
+WHATSAPP_DEBUG = secret["WHATSAPP_DEBUG"]
+
 
 class WhatsAppClient:
     API_URL = "https://graph.facebook.com/v19.0/"
@@ -14,13 +16,14 @@ class WhatsAppClient:
     WHATSAPP_API_TOKEN = secret["WHATSAPP_API_TOKEN"]
     WHATSAPP_CLOUD_NUMBER_ID = secret["WHATSAPP_CLOUD_NUMBER_ID"]
 
-    def __init__(self, debug: bool = False):
+    def __init__(self):
         self.headers = {
             "Authorization": f"Bearer {self.WHATSAPP_API_TOKEN}",
             "Content-Type": "application/json",
         }
         self.API_URL = self.API_URL + self.WHATSAPP_CLOUD_NUMBER_ID
-        self.DEBUG = debug
+        self.DEBUG = True if WHATSAPP_DEBUG == "True" else False
+        print()
 
     def send_template_message(self, template_name, language_code, phone_number):
         if self.DEBUG: return
@@ -178,7 +181,7 @@ class WhatsAppClient:
 
 
 if __name__ == "__main__":
-    client = WhatsAppClient(debug=False)
+    client = WhatsAppClient()
     # send a template message
     # client.process_audio(audio_id="8076039309081304", msisdn="18296456177", campaign="GET_FROM_SENDER")
     client.convert_to_wav(ogg_file_name="/Users/beltre.wilton/apps/preescrening_audios/18296456177-GET_FROM_SENDER.ogg")

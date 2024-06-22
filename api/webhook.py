@@ -1,15 +1,9 @@
-import os
-import datetime
-from fastapi import APIRouter, Request, Response, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
-from dspy import Predict, settings
-from dspy import GROQ
 from rich import print
 from dotenv import dotenv_values
 from samantha.src.machinery import SchedulerMachine
-# from integration.odoo.va import get_odoo, Messages
 from integration.whatsapp.whatsapp_client import WhatsAppClient
-import odoorpc
 
 
 router = APIRouter(prefix='/webhook', tags=['webhook'])
@@ -27,7 +21,7 @@ def subscribe(request: Request):
 
 
 def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text"):
-    wtsapp_client = WhatsAppClient(debug=False)
+    wtsapp_client = WhatsAppClient()
     machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client)
     if message_type == "audio":
         machine.manage_audio(audio_id)
@@ -38,7 +32,7 @@ def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: 
 @router.post("/", status_code=200)
 async def process_notifications(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    wtsapp_client = WhatsAppClient(debug=False)
+    wtsapp_client = WhatsAppClient()
     print("We received ")
     print(data)
     response = wtsapp_client.process_notification(data)
