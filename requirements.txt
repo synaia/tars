@@ -2,7 +2,6 @@ scikit-learn
 fastapi
 pydantic
 uvicorn
-gunicorn
 odoorpc
 jupyterlab
 dspy-ai

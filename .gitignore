@@ -27,6 +27,6 @@
 /staticfiles/
 /.vscode/
 .DS_Store
-integration/speechace/__pycache__/
 Please provide as a voice note.docx
 Please provide as a voice note.pdf
+integration/speech/__pycache__/

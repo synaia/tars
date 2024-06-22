@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Float
 from sqlalchemy.dialects.postgresql import JSON
 from integration.odoo.schema import Stage, Task, Schedule, Applicant, GrammarScore, PronunciationScore
 from samantha.src.configs import Base
-from samantha.src.configs import SessionLocal
 from integration.odoo.util import get_odoo
 
 

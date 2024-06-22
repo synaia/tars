@@ -12,17 +12,9 @@ from integration.whatsapp.whatsapp_client import WhatsAppClient
 import odoorpc
 
 
-#TODO: use of global HERE 
-# odoo_message = Messages(odoo=get_odoo())
-odoo_message = None
-
 router = APIRouter(prefix='/webhook', tags=['webhook'])
 
 secret = dotenv_values('.secret')
-
-# print("GROQ_API_KEY ", secret['GROQ_API_KEY'])
-# groq = GROQ(model='llama3-70b-8192', api_key=secret['GROQ_API_KEY'])
-# settings.configure(lm=groq)
     
     
 @router.get("/")
@@ -67,25 +59,3 @@ async def process_notifications(request: Request, background_tasks: BackgroundTa
     except Exception as ex:
         print(ex)
     return jsonable_encoder({"status": "success"})
-
-
-@router.post("/schedule_message/", status_code=200)
-async def schedule_message(msisdn: str, campaign: str, message: str, source: str, whatsapp_id: str, bg: BackgroundTasks):
-    try:
-        schedule_to = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=1)
-        # print("PROGRAMADO PARA: ", schedule_to, type(schedule_to))
-        # message_deliver.apply_async((msisdn, campaign, message, source, whatsapp_id), eta=schedule_to)
-        # message_deliver.apply_async((msisdn, campaign, message, source, whatsapp_id))
-        # bg.add_task(message_deliver, msisdn=msisdn, campaign=campaign, message=message, source=source, whatsapp_id=whatsapp_id)
-        return {"message": "Message scheduled", "msisdn": msisdn}
-    except Exception as ex:
-        print(ex)
-
-
-# @router.get("/revoke/", status_code=200)
-# async def revoke():
-#     try:
-#        t = revoke_task()
-#        return {"task": f"revoked: {t}"}
-#     except Exception as ex:
-#         print(ex)
