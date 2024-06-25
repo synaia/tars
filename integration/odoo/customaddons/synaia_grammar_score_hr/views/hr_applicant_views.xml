@@ -1,0 +1,20 @@
+<odoo>
+    <record id="view_hr_applicant_form_inherit" model="ir.ui.view">
+        <field name="name">hr.applicant.form.inherit.cefr</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside" label="Grammar Overall Score">
+            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
+                <group string="Grammar Details">
+                    <field name="a1_score" widget="progressbar"/>
+                    <field name="a2_score" widget="progressbar"/>
+                    <field name="b1_score" widget="progressbar"/>
+                    <field name="b2_score" widget="progressbar"/>
+                    <field name="c1_score" widget="progressbar"/>
+                    <field name="c2_score" widget="progressbar"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

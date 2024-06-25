@@ -1,0 +1,12 @@
+.custom_cefr_score {
+    font-size: 16px; 
+    font-weight: bold; 
+}
+
+.custom_progress_group {
+    width: 70%; /* Adjust this value based on your needs */
+}
+
+.custom_score_group {
+    width: 30%; /* Adjust this value based on your needs */
+}

@@ -68,7 +68,7 @@ class NotContinueSignature(dspy.Signature):
 class NotFound(dspy.Signature):
     # """Generates a denial response related to the question in context"""
     """Respond that you do not have that information available, but it was requested."""
-    context: str = dspy.InputField()
+    context: list[str] = dspy.InputField()
     response: str = dspy.OutputField(desc="often between 5 and 10 words")
 
 
@@ -81,7 +81,7 @@ class Veracity(dspy.Signature):
 class CompanySignature(dspy.Signature):
     """Answer questions with short factoid answers and friendly, use emoji. Answer should be in the context."""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the history of conversation.")
-    context: str = dspy.InputField(desc="may contain relevant facts")
+    context: list[str] = dspy.InputField(desc="may contain relevant facts")
     question: str = dspy.InputField(desc="User question to be answered")
     answer: str = dspy.OutputField(desc="Contains the AI message output, often between 6 and 12 words")
 
@@ -92,7 +92,7 @@ class CompanyRelated(dspy.Module):
         self.retriever = retriever_model
         self.predict = dspy.ChainOfThought(CompanySignature)
         self.veracity = dspy.TypedChainOfThought(Veracity)
-        self.not_found = dspy.Predict(NotFound)
+        self.not_found = dspy.ChainOfThought(NotFound)
     
     def forward(self, question: str, chat_history: list[str]) -> dict:
         context = self.retriever(question)
@@ -106,7 +106,7 @@ class CompanyRelated(dspy.Module):
                 "answer_is_in_context_provided": veracity.answer_is_in_context_provided
             }
         else:
-            r = self.not_found(context=question)
+            r = self.not_found(context=[question])
             return {
                 "answer": r.response,
                 "answer_is_in_context_provided": veracity.answer_is_in_context_provided
@@ -137,7 +137,7 @@ class ThanksSignature(dspy.Signature):
 class NoFeedBackSignature(dspy.Signature):
     """Kindly reply back that there is no feedback yet"""
     text: str = dspy.InputField(desc="user input text")
-    response: str = dspy.OutputField(desc="often between 3 and 5 words")
+    response: str = dspy.OutputField(desc="often between 5 and 7 words")
 
 
 class SelfSignature(dspy.Signature):
@@ -213,8 +213,8 @@ class New(dspy.Module):
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
-        self.non_feedback = dspy.Predict(NoFeedBackSignature)
-        self.self_back = dspy.Predict(SelfSignature)
+        self.non_feedback = dspy.ChainOfThought(NoFeedBackSignature)
+        self.self_back = dspy.ChainOfThought(SelfSignature)
 
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
@@ -268,8 +268,8 @@ class Recording(dspy.Module):
         self.company = CompanyRelated()
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
-        self.non_feedback = dspy.Predict(NoFeedBackSignature)
-        self.self_back = dspy.Predict(SelfSignature)
+        self.non_feedback = dspy.ChainOfThought(NoFeedBackSignature)
+        self.self_back = dspy.ChainOfThought(SelfSignature)
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type
@@ -320,7 +320,7 @@ class Evaluation(dspy.Module):
         self.later_continue = dspy.ChainOfThoughtWithHint(LaterContinueSignature)
         self.not_continue = dspy.ChainOfThought(NotContinueSignature)
         self.applicant = ApplicantState(msisdn=msisdn, data=data)
-        self.self_back = dspy.Predict(SelfSignature)
+        self.self_back = dspy.ChainOfThought(SelfSignature)
 
     def forward(self, user_input: str, chat_history: list[str], utterance_type: str) -> str:
         # utterance_type = self.classificator(utterance=user_input).utterance_type

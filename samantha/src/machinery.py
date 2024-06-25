@@ -129,7 +129,7 @@ class SchedulerMachine(transitions.Machine):
 
 
     def router(self, text: str, utterance_type: str) -> str: 
-        if self.state == "draft" and text == "#1": # form completed
+        if self.state == "draft" and text == "I have completed the basic form.": # form completed
             try:
                 odoo_message.dummy_applicant(self.msisdn) # work because its the #1 thread ? ...
             except Exception as ex:
@@ -211,9 +211,14 @@ class SchedulerMachine(transitions.Machine):
             self.data.update_collected(unreaded_messages)
 
         unreaded_messages_collected = " ".join([u['message'] for u in unreaded_messages])
+        
+        if unreaded_messages_collected == "#1":
+            unreaded_messages_collected = "I have completed the basic form."
+        
         if len(unreaded_messages) > 1:
             readed, collected = True, True
             scheduler.add_job(self.data.add_chat_history_db, 'date', run_date=None, args=[self.msisdn, self.campaign, unreaded_messages_collected, SOURCE_USER, whatsapp_id, now, readed, collected])
+
             self.data.add_chat_history(self.msisdn, self.campaign, unreaded_messages_collected, SOURCE_USER, whatsapp_id, now, readed=True, collected=True)
 
         utterance_type = self.infer_utterance_type(text=unreaded_messages_collected)
