@@ -1,0 +1,76 @@
+<odoo>
+    <record id="view_hr_applicant_form_inherit" model="ir.ui.view">
+        <field name="name">hr.applicant.form.inherit.speech</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside" label="Speech Overall Score">
+            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
+                <group string="Speech Details">
+                    <group>
+                        <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
+                        <field name="speech_overall_score" 
+                               string=" Speech Overall Score" 
+                               widget="percentpie" 
+                               />
+                    </group>
+                    <group colspan="2">
+                        <group>
+                            <field name="speech_duration" readonly="1" style="font-weight: bold;" />
+                            <field name="speech_fluency" widget="progressbar" />
+                            <field name="speech_integrity" widget="progressbar" />
+                        </group>
+                        <group>
+                            <field name="speech_pronunciation" widget="progressbar" />
+                            <field name="speech_rhythm" widget="progressbar" />
+                            <field name="speech_speed" widget="progressbar" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="speech_warning" readonly="1" style="font-size: 10px; font-weight: bold; font-color: red;" />
+                    </group>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_name']" position="before">
+                <field name="photo_applicant" widget="image" class="oe_avatar" options="{'preview_image': 'photo_applicant', 'size': [128, 128]}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='interviewer_ids']" position="before">
+                <field name="lead_temperature" widget="custom_gauge" 
+                        options="{'lead_heat_check_label': 'lead_heat_check' }"
+                />
+                <field name="lead_heat_check" invisible="1" />
+            </xpath>
+
+            <xpath expr="//form/sheet" position="inside" label="Grammar Overall Score">
+            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
+                <group string="Grammar Details">
+                    <field name="a1_score" widget="progressbar"/>
+                    <field name="a2_score" widget="progressbar"/>
+                    <field name="b1_score" widget="progressbar"/>
+                    <field name="b2_score" widget="progressbar"/>
+                    <field name="c1_score" widget="progressbar"/>
+                    <field name="c2_score" widget="progressbar"/>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='medium_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='email_cc']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="string">Hiring Manager</attribute>
+            </xpath>
+            <xpath expr="//field[@name='interviewer_ids']" position="before"> <!-- Adjust the XPath to place the field correctly -->
+                <field name="create_date" readonly="1"/>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>

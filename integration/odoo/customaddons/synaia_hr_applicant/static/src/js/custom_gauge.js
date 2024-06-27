@@ -9,7 +9,7 @@ export class CustomGauge extends Component {
         ...standardFieldProps,
         leadHeatCheck: { type: String, optional: true },
      };
-    static template = 'synaia_heat_check_applicant_1.GaugeFieldTemplate';
+    static template = 'synaia_hr_applicant.GaugeFieldTemplate';
     
     setup() {
         super.setup();

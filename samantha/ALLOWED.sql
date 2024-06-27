@@ -137,10 +137,25 @@ FROM hr_applicant a, hr_recruitment_stage s
 ORDER by id desc;
 
 
-SELECT lead_last_update FROM hr_applicant WHERE phone_sanitized = '18099999999';
+
+UPDATE hr_applicant SET lead_last_update = NOW() - interval '0' day WHERE phone_sanitized = '18099999999';
+UPDATE hr_applicant SET lead_last_client_update = NOW() - interval '1' day WHERE phone_sanitized = '18099999999';
+UPDATE hr_applicant SET stage_id = 4 WHERE id = 20; -- 4 == "Evaluation"
+
+
+
+
+SELECT lead_last_update, speech_overall_score, lead_max_temperature FROM hr_applicant WHERE phone_sanitized = '18099999999';
+
+UPDATE hr_applicant set speech_overall_score = 75.89, speech_duration = 134.78, speech_fluency = 45, lead_max_temperature = 100
+	WHERE phone_sanitized = '18099999999';
+
 
 SELECT * FROM hr_heat_check;
 
 
-
+ SELECT h.lead_heat_check 
+                FROM public.hr_applicant AS a
+                INNER JOIN public.hr_heat_check AS h
+                ON a.id = h.applicant_id
 
