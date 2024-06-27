@@ -7,15 +7,10 @@
             <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='interviewer_ids']" position="before">
-                    <field name="lead_temperature" widget="custom_gauge" />
+                    <field name="lead_temperature" widget="custom_gauge" 
+                           options="{'lead_heat_check_label': 'lead_heat_check' }"
+                    />
                     <field name="lead_heat_check" invisible="1" />
-                    <!-- <field 
-                        widget="gauge" 
-                        name="lead_temperature" 
-                        options="{'max_field': 'lead_temperature', 'label_field': 'lead_heat_check', 'style': 'width:260px; height: 220px;'}"
-                    /> -->
-                    <!-- <field name="lead_temperature" />
-                    <field name="lead_temperature" widget="gauge" options="{'max_field': 'lead_max_temperature'}"/> -->
                 </xpath>
             </field>
         </record>

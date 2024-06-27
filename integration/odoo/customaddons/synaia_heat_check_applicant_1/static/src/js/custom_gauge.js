@@ -5,7 +5,10 @@ import { Component, useRef, useEffect, onMounted, onRendered, onPatched } from "
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 export class CustomGauge extends Component {
-    static props = { ...standardFieldProps };
+    static props = { 
+        ...standardFieldProps,
+        leadHeatCheck: { type: String, optional: true },
+     };
     static template = 'synaia_heat_check_applicant_1.GaugeFieldTemplate';
     
     setup() {
@@ -21,8 +24,9 @@ export class CustomGauge extends Component {
     renderGauge() {
         console.log("**** renderGauge() ", this.props.record.data.lead_temperature)
 
-        const value = this.props.record.data.lead_temperature || 0;
+        const value = this.props.record.data[this.props.name] || 0;
         const lead_heat_check_label = this.props.record.data.lead_heat_check || 'Not Defined';
+        // this.props.record.data[this.props.leadHeatCheck]
         const canvas = this.canvasRef.el;
         if (!canvas) return;
 
@@ -72,6 +76,9 @@ export class CustomGauge extends Component {
 
 export const customGauge = {
     component: CustomGauge,
+    extractProps: ({ options }) => ({
+        leadHeatCheck: options.lead_heat_check_label,
+    }),
     supportedTypes: ["float"],
 };
 
