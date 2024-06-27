@@ -76,6 +76,7 @@ class GrammarScore(BaseModel):
         from_attributes = True        
 
 
+#TODO cambia todo
 class PronunciationScore(BaseModel):
     msisdn: str | None = None
     cefr_score: str | None = None

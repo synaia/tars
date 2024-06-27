@@ -5,7 +5,7 @@ class HrApplicant(models.Model):
 
     lead_stage = fields.Char(string="Lead Stage", compute="_compute_lead_stage")
     lead_heat_check = fields.Char(string="Lead Heat Check", compute="_compute_lead_heat_check")
-    lead_max_temperature = fields.Float(string='Max Lead Temperature', default=1.0)
+    lead_max_temperature = fields.Float(string='Max Lead Temperature', default=100)
     lead_temperature = fields.Float(string="Lead Temperature", compute="_compute_lead_temperature")
 
     def _compute_lead_stage(self):

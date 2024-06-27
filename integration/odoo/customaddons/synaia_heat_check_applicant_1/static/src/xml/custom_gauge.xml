@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="synaia_heat_check_applicant_1.GaugeFieldTemplate">
+        <div>
+            <canvas  t-ref="gaugeCanvas" width="200" height="200"></canvas>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,36 @@
+<odoo>
+    <record id="view_hr_applicant_form_inherit" model="ir.ui.view">
+        <field name="name">hr.applicant.form.inherit.speech</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside" label="Speech Overall Score">
+            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
+                <group string="Speech Details">
+                    <group>
+                        <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
+                        <field name="speech_overall_score" 
+                               string=" Speech Overall Score" 
+                               widget="percentpie" 
+                               />
+                    </group>
+                    <group colspan="2">
+                        <group>
+                            <field name="speech_duration" readonly="1" style="font-weight: bold;" />
+                            <field name="speech_fluency" widget="progressbar" />
+                            <field name="speech_integrity" widget="progressbar" />
+                        </group>
+                        <group>
+                            <field name="speech_pronunciation" widget="progressbar" />
+                            <field name="speech_rhythm" widget="progressbar" />
+                            <field name="speech_speed" widget="progressbar" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="speech_warning" readonly="1" style="font-size: 10px; font-weight: bold; font-color: red;" />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

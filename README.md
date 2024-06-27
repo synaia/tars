@@ -52,7 +52,6 @@ sudo apt install postgresql-14-pgvector
 
 CREATE EXTENSION vector;
 BEGIN;
-
 CREATE TABLE IF NOT EXISTS public.company_info
 (
     id bigserial NOT NULL,

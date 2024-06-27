@@ -77,7 +77,7 @@ class HrApplicant(Base):
     salary_proposed = Column(Float)
     salary_expected = Column(Float)
     delay_close = Column(Float)
-    cefr_score = Column(String)
+    speech_score = Column(String)
     pron_c_score = Column(String)
     flue_c_score = Column(String)
     voca_c_score = Column(String)
@@ -101,7 +101,7 @@ class RecruitmentStage(Base):
     name = Column(JSON)
 
 class SpeechaceLog(Base):
-    __tablename__ = 'speechace_log'
+    __tablename__ = 'speech_log'
 
     id = Column(Integer, primary_key=True)
     msisdn = Column(String(50), nullable=False)

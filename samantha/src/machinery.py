@@ -183,7 +183,7 @@ class SchedulerMachine(transitions.Machine):
                 scores = SpeechaceClient().request(text="If someone is upset on WhatsApp, you can be kind and listen to them. You can say sorry and try to help them feel better. Maybe you can ask what they need and find a way to fix the problem.", audio=audio)
                 data = {"cefr_score": scores['text_score']['cefr_score']['pronunciation']}
                 scheduler.add_job(self.set_pronun_score_wrapper, 'date', run_date=None, args=[data])
-                scheduler.add_job(self.data.speechace_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio, scores])
+                scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio, scores])
             return
         if self.state == "evaluation":
             message = random_message(voice_note_received_yet)
@@ -608,13 +608,13 @@ class DataManager():
         1 - New (new -> basic form completed)
         2 - Grammar Check ()
         3 - QA Assestment (recording -> assesmetn have completed)
-        7 - Recording (recording voice note received)
-        4 - Evaluation (evaluation)
+        4 - Recording (recording voice note received)
+        5 - Evaluation (evaluation)
         """
         states = {
             'new': 1,
             'recording': 4,
-            'evaluation': 3,
+            'evaluation': 5,
         }
         db = SessionLocal()
         try:
@@ -664,7 +664,7 @@ class DataManager():
         finally:
             db.close()
 
-    def speechace_log(self, msisdn: str, campaign: str, audio_path: str, response: dict):
+    def speech_log(self, msisdn: str, campaign: str, audio_path: str, response: dict):
         log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, audio_path=audio_path, response_date=self.now_)
         db = SessionLocal()
         try:
