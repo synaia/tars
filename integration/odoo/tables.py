@@ -1,36 +1,51 @@
 import json
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Float, Double, Numeric
 from sqlalchemy.dialects.postgresql import JSON
-from integration.odoo.schema import Stage, Task, Schedule, Applicant, GrammarScore, PronunciationScore
+from integration.odoo.schema import Stage, Task, Schedule, Applicant, GrammarScore, SpeechScore
 from samantha.src.configs import Base
 from integration.odoo.util import get_odoo
 
 
-class ChatHistory(Base):
-    __tablename__ = "chat_history"
-    id = Column(Integer, primary_key=True, index=True)
-    msisdn = Column(String, index=True)
-    campaign = Column(String, index=True)
-    message = Column(Text)
-    source = Column(Text)
-    whatsapp_id = Column(String, index=True)
-    sending_date = Column(DateTime)
-    readed = Column(Boolean)
-    collected = Column(Boolean)
+def now_():
+    return datetime.now().astimezone()
 
-class VAStage(Base):
-    __tablename__ = "va_stage_app"
+class ChatHistory(Base):
+    __tablename__ = 'va_chat_history'
+
     id = Column(Integer, primary_key=True, index=True)
-    msisdn = Column(String, index=True)
-    campaign = Column(String, index=True)
-    state = Column(String)
-    last_update = Column(DateTime)
+    create_uid = Column(Integer, default=1)
+    write_uid = Column(Integer, default=1)
+    msisdn = Column(String, nullable=False)
+    campaign = Column(String, nullable=False)
+    source = Column(String(100))
+    whatsapp_id = Column(String(100))
+    message = Column(Text)
+    readed = Column(Boolean, default=False)
+    collected = Column(Boolean, default=False)
+    sending_date = Column(DateTime)
+    create_date = Column(DateTime, default=now_())
+    write_date = Column(DateTime, default=now_(), onupdate=now_())
+
+
+class ApplicantStage(Base):
+    __tablename__ = 'va_applicant_stage'
+
+    id = Column(Integer, primary_key=True, index=True)
+    create_uid = Column(Integer, default=1)
+    write_uid = Column(Integer, default=1)
+    msisdn = Column(String, nullable=False)
+    campaign = Column(String, nullable=False)
+    state = Column(String(20))
+    last_update = Column(DateTime, default=now_())
+    create_date = Column(DateTime, default=now_())
+    write_date = Column(DateTime, default=now_(), onupdate=now_())
+
 
 class HrApplicant(Base):
     __tablename__ = 'hr_applicant'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     campaign_id = Column(Integer)
     source_id = Column(Integer)
     medium_id = Column(Integer)
@@ -47,68 +62,96 @@ class HrApplicant(Base):
     color = Column(Integer)
     emp_id = Column(Integer)
     refuse_reason_id = Column(Integer)
-    create_uid = Column(Integer)
-    write_uid = Column(Integer)
+    create_uid = Column(Integer, default=1)
+    write_uid = Column(Integer, default=1)
     phone_sanitized = Column(String)
     email_normalized = Column(String)
     email_cc = Column(String)
     name = Column(String, nullable=False)
-    email_from = Column(String)
+    email_from = Column(String(128))
     priority = Column(String)
     salary_proposed_extra = Column(String)
     salary_expected_extra = Column(String)
     partner_name = Column(String)
-    partner_phone = Column(String)
+    partner_phone = Column(String(32))
     partner_phone_sanitized = Column(String)
-    partner_mobile = Column(String)
+    partner_mobile = Column(String(32))
     partner_mobile_sanitized = Column(String)
     kanban_state = Column(String, nullable=False)
     linkedin_profile = Column(String)
     availability = Column(DateTime)
     applicant_properties = Column(JSON)
-    description = Column(Text)
+    description = Column(String)
     active = Column(Boolean)
-    create_date = Column(DateTime)
     date_closed = Column(DateTime)
     date_open = Column(DateTime)
     date_last_stage_update = Column(DateTime)
-    write_date = Column(DateTime)
-    probability = Column(Float)
-    salary_proposed = Column(Float)
-    salary_expected = Column(Float)
-    delay_close = Column(Float)
-    speech_score = Column(String)
-    pron_c_score = Column(String)
-    flue_c_score = Column(String)
-    voca_c_score = Column(String)
-    gram_c_score = Column(String)
-    pron_score = Column(Float)
-    flue_score = Column(Float)
-    voca_score = Column(Float)
-    gram_score = Column(Float)
-    a1_score = Column(Integer)
-    a2_score = Column(Integer)
-    b1_score = Column(Integer)
-    b2_score = Column(Integer)
-    c1_score = Column(Integer)
-    c2_score = Column(Integer)
-    lead_last_client_update = Column(DateTime)
+    probability = Column(Double)
+    salary_proposed = Column(Double)
+    salary_expected = Column(Double)
+    delay_close = Column(Double)
+    speech_warning = Column(String(300))
+    a1_score = Column(Numeric)
+    a2_score = Column(Numeric)
+    b1_score = Column(Numeric)
+    b2_score = Column(Numeric)
+    c1_score = Column(Numeric)
+    c2_score = Column(Numeric)
     lead_last_update = Column(DateTime)
+    lead_last_client_update = Column(DateTime)
+    lead_max_temperature = Column(Double)
+    lead_heat_check = Column(String)
+    # UNScripted score
+    speech_open_question = Column(String)
+    speech_unscripted_overall_score = Column(Double)
+    speech_unscripted_length = Column(Double)
+    speech_unscripted_fluency_coherence = Column(Double)
+    speech_unscripted_grammar = Column(Double)
+    speech_unscripted_lexical_resource = Column(Double)
+    speech_unscripted_pause_filler = Column(String)
+    speech_unscripted_pronunciation = Column(Double)
+    speech_unscripted_relevance = Column(Double)
+    speech_unscripted_speed = Column(Double)
+    speech_unscripted_audio_path = Column(String(300))
+    speech_unscripted_warning = Column(String(300))
+    # scripted soore
+    speech_overall = Column(Double)
+    speech_refText = Column(Text)
+    speech_duration = Column(Double)
+    speech_fluency = Column(Double)
+    speech_integrity = Column(Double)
+    speech_pronunciation = Column(Double)
+    speech_rhythm = Column(Double)
+    speech_speed = Column(String(300))
+    speech_audio_path = Column(String(300))
+    speech_warning = Column(String(300))
 
-class RecruitmentStage(Base):
-    __tablename__ = "hr_recruitment_stage"
+    #
+    create_date = Column(DateTime, default=now_())
+    write_date = Column(DateTime, default=now_(), onupdate=now_())
+
+
+class SpeechLog(Base):
+    __tablename__ = 'va_speech_log'
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(JSON)
+    create_uid = Column(Integer, default=1)
+    write_uid = Column(Integer, default=1)
+    msisdn = Column(String, nullable=False)
+    campaign = Column(String, nullable=False)
+    audio_path = Column(String(500))
+    response = Column(JSON)
+    create_date = Column(DateTime, default=now_())
+    write_date = Column(DateTime, default=now_(), onupdate=now_())
 
-class SpeechaceLog(Base):
-    __tablename__ = 'speech_log'
+
+
+class HrRecruitmentStage(Base):
+    __tablename__ = 'hr_recruitment_stage'
 
     id = Column(Integer, primary_key=True)
-    msisdn = Column(String(50), nullable=False)
-    campaign = Column(String(100), nullable=False)
-    response = Column(JSON)
-    audio_path = Column(String(300))
-    response_date = Column(DateTime)
+    name = Column(JSON, nullable=False)
+  
 
 # esta clase es temporar para crear los applicantes.
 class OdooMessages():

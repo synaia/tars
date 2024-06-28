@@ -1,46 +1,67 @@
+from psycopg2 import sql
 from odoo import models, fields
 
-class va_message_history(models.Model):
-    _name = 'va.message.history'
-    _description = 'History Message'
 
-    msisdn = fields.Char(string='Phone Number', required=True)
-    campaign = fields.Char(string='Campaign', required=True)
-    human_message = fields.Char(string='Human Message')
-    lm_message = fields.Text(string='LLM Message')
+def refresh_grants(clz: models.Model, table_name: str) -> None:
+    """
+    Refreshes the ownership and grants for a specific database table.
+    Args:
+        clz (models.Model): The model instance that owns the table.
+        table_name (str): The name of the table to refresh grants for.
+    Notes:
+        This function alters the ownership of the table to 'drfadul' and grants all privileges to 'drfadul'.
+    Raises:
+        None (but prints an error message if an Exception occurs during execution)
+    """
+    table_name = table_name.replace(".", "_")
+    query = f""" 
+         ALTER TABLE public.{table_name} OWNER TO drfadul;
+         GRANT ALL ON TABLE public.{table_name} TO drfadul;
+        """
+    try:
+        clz.env.cr.execute(
+            sql.SQL(query)
+        )
+    except Exception as ex:
+        print("**** problems ", ex)
 
-class va_stage(models.Model):
-    _name = 'va.stage'
-    _description = 'Stage'
 
-    msisdn = fields.Char(string='Phone Number', required=True)
-    campaign = fields.Char(string='Campaign', required=True)
-    state = fields.Char(string='State')
+class va_chat_history(models.Model):
+    _name = 'va.chat.history'
+    _description = 'Chat History Message'
+
+    msisdn = fields.Char(string='Whatsapp Phone Number', required=True, index=True)
+    campaign = fields.Char(string='Campaign', required=True, index=True)
+    message = fields.Text(string='Any Message')
+    source = fields.Char(string="human/ai source", size=100)
+    whatsapp_id = fields.Char(string="Whatsapp id from json webhook", size=100, index=True)
+    sending_date = fields.Datetime(string="Scheduled sending date time")
+    readed = fields.Boolean(string="To notify if the message was readed")
+    collected = fields.Boolean(string="To collect or group separate meesages sended arbitrary by user")
+
+    def init(self):
+        refresh_grants(self, table_name=self._name)
+
+class va_applicant_stage(models.Model):
+    _name = 'va.applicant.stage'
+    _description = 'Applicant Stage'
+
+    msisdn = fields.Char(string='Phone Number', required=True, index=True)
+    campaign = fields.Char(string='Campaign', required=True, index=True)
+    state = fields.Char(string='State', size=20)
     last_update = fields.Datetime(string='Last Update')
 
-class va_task(models.Model):
-    _name = 'va.task'
-    _description = 'Task'
+    def init(self):
+        refresh_grants(self, table_name=self._name)
 
-    msisdn = fields.Char(string='Phone Number', required=True)
-    campaign = fields.Char(string='Campaign', required=True)
-    task = fields.Char(string='Task')
-    complete = fields.Boolean(string='Is Complete?')
-    message_id = fields.Text(string='Message')
-    last_update = fields.Datetime(string='Last Update')
+class va_speech_log(models.Model):
+    _name = 'va.speech.log'
+    _description = 'Speech Log'
 
-class va_schedule(models.Model):
-    _name = 'va.schedule'
-    _description = 'Schedule'
+    msisdn = fields.Char(string='Phone Number', required=True, index=True)
+    campaign = fields.Char(string='Campaign', required=True, index=True)
+    response = fields.Json(string='Full Json Speech Response')
+    audio_path = fields.Char(string='The user recording audio path', size=500)
 
-    msisdn = fields.Char(string='Phone Number', required=True)
-    campaign = fields.Char(string='Campaign', required=True)
-    schedule = fields.Datetime(string='Schedule')
-
-class va_applicant_recording(models.Model):
-    _name = 'va.applicant.recording'
-    _description = 'Applicant Recording'
-
-    msisdn = fields.Char(string='Phone Number', required=True)
-    campaign = fields.Char(string='Campaign', required=True)
-    audio_path = fields.Char(string='Audio URL')
+    def init(self):
+        refresh_grants(self, table_name=self._name)

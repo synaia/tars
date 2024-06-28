@@ -248,18 +248,29 @@ class New(dspy.Module):
 
 
 
-class RecordingSignature(dspy.Signature):
-    """"Kindly ask the user to take a moment and send a voice note 🗣️ of no more than 2 minutes for evaluation purposes"""
+class RecordingSignature_1(dspy.Signature):
+    """"Kindly ask the user to take a moment to read aloud the following text and send it as a voice note 🗣️"""
     chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
     # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
     user_input: str = dspy.InputField(format=str, desc="user input text")
-    response: str = dspy.OutputField(desc="Maintain the original meaning, Express the following in alternative way: 'Please take a moment and send a voice note 🗣️ of no more than 2 minutes for evaluation purposes', often between 10 and 12 words")
+    response: str = dspy.OutputField(desc="Maintain the original meaning, Express the following in alternative way: 'Please take a moment to read aloud the following text and send it as a voice note 🗣️', often between 10 and 12 words")
+
+
+class RecordingSignature_2(dspy.Signature):
+    """"Kindly ask the user to answer the following question aloud and send it as a voice note 🗣️"""
+    chat_history: list[str] = dspy.InputField(format=passages2text, desc="Must consider relevant facts in the chat history of conversation.")
+    # user_input: str = dspy.InputField(format=lambda x: "\n===\n" + str(x) + "\n===\n")
+    user_input: str = dspy.InputField(format=str, desc="user input text")
+    response: str = dspy.OutputField(desc="Maintain the original meaning, Express the following in alternative way: 'Please answer the following question aloud and send it as a voice note 🗣️', often between 10 and 12 words")
 
 
 class Recording(dspy.Module):
-    def __init__(self):
+    def __init__(self, step: int):
         super().__init__()
-        self.signature = RecordingSignature
+        if step == 1:
+            self.signature = RecordingSignature_1
+        if step == 2:
+            self.signature = RecordingSignature_2
         self.predict = dspy.ChainOfThought(self.signature)
         # self.classificator = UtteranceClassificator()
         # self.classificator.load('./samantha/src/compiled_json_ref/utterance_module_v3.json')

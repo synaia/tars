@@ -42,7 +42,7 @@ async def new(r: SubscribeRequest):
 @router.post("/recording", status_code=200)
 async def recording(r: SubscribeRequest):
     try:
-        recording_module = Recording()
+        recording_module = Recording(step=r.step)
         response = recording_module(r.text, r.chat_history, r.utterance_type)
         return {'llm': response}
     except Exception as ex:

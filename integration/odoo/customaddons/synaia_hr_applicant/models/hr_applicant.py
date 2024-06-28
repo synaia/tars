@@ -28,16 +28,34 @@ class HrApplicant(models.Model):
     c2_score = fields.Float(string='C2', help="C2 score of this applicant", default=0.000, digits=(6, 3))
 
 
-    #Speech Overall score
-    speech_overall_score = fields.Float(string='Speech Overall Score', default=0.0)    
-    #Pronunciation Score
-    speech_duration = fields.Float(string='Duration of speech', help="Long of the voice note of this applicant", default=0.0)
-    speech_fluency = fields.Float(string='Fluency of speech', help="Fluency of this applicant", default=0.0)
-    speech_integrity = fields.Float(string='Integrity of speech', help="Integrity of this applicant", default=0.0)
-    speech_pronunciation = fields.Float(string='Pronunciation of speech', help="Pronunciation of this applicant", default=0.0)
-    speech_rhythm = fields.Float(string='Rhythm of speech', help="Rhythm of this applicant", default=0.0)
-    speech_speed = fields.Float(string='Speed of speech', help="Speed of this applicant", default=0.0)
+    #UNScripted Speech Overall score
+    speech_unscripted_overall_score = fields.Float(string='Speech Overall Score', default=0.0)    
+    #***UNScripted Score
+    speech_open_question = fields.Char(string='Open question', size=400)
+    speech_unscripted_length = fields.Float(string='Length of speech', help="Length of the voice note of this applicant", default=0.0)
+    speech_unscripted_fluency_coherence = fields.Float(string='Fluency coherence', help="Fluency coherence of this applicant", default=0.0)
+    speech_unscripted_grammar = fields.Float(string='Grammar score', help="Grammar score  of this applicant", default=0.0)
+    speech_unscripted_lexical_resource = fields.Float(string='Lexical score', help="Lexical score of this applicant", default=0.0)
+    speech_unscripted_pause_filler = fields.Char(string='Pause fillers', size=300)
+    speech_unscripted_pronunciation = fields.Float(string='Pronunciation', help="Pronunciation of this applicant", default=0.0)
+    speech_unscripted_relevance = fields.Float(string='Relevance', help="Relevance of this applicant", default=0.0)
+    speech_unscripted_speed = fields.Float(string='Speed', help="Speed of this applicant", default=0.0)
+    speech_unscripted_warning = fields.Char(string='Warning', size=300)
+    speech_unscripted_audio_path = fields.Char(string='Audio path', size=300)
+
+    #Scripted Score
+    speech_overall = fields.Float(string="Overall score", default=0.0)
+    speech_refText = fields.Text(string="Text readed by applicant")
+    speech_duration = fields.Float(string="Audio/voice note duration", default=0.0)
+    speech_fluency = fields.Float(string="Fluency score", default=0.0)
+    speech_integrity = fields.Float(string="Integrity score", default=0.0)
+    speech_pronunciation = fields.Float(string="Pronunciation score", default=0.0)
+    speech_rhythm = fields.Float(string="Rhythm score", default=0.0)
+    speech_speed = fields.Float(string="Speed score", default=0.0)
     speech_warning = fields.Char(string='Warning', size=300)
+    speech_audio_path = fields.Char(string='Audio path', size=300)
+
+
 
 
     def _compute_lead_stage(self):

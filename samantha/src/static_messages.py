@@ -92,19 +92,36 @@ friendly_reminder = [
     "Your new career is within reach! Don't forget to finish the evaluation 🌱"
 ]
 
-voice_note_reminder = [
-    "a final reminder: don't skip the voice note! ⏰ it should only take 2 minutes. thanks! 😊",
-    "almost there! just one more thing: record a quick 2-minute voice note, please. 👍",
-    "don't miss the last step: leave a voice note (it's short, we promise!) 📝",
-    "remember to add your voice note - it's the final hurdle! 🏁 (max 2 minutes, thanks) 👊",
-    "last but not least, please record a voice note - just 2 minutes, we appreciate it! 😊",
-    "a friendly reminder: voice notes are essential! please add yours (takes just 2 minutes). 📞",
-    "you're nearly done! just add a brief voice note (under 2 minutes) and you're all set. 👌",
-    "don't forget to leave a voice message - it's the last step, and it's quick! ⏱️",
-    "almost finished! please take 2 minutes to record a voice note - thanks for your time! 🙏",
-    "final check: have you added your voice note? it's a quick 2-minute task, we promise! 💯"
+voice_note_reminder_1 = [
+    "A quick reminder: speak the text and share it as a voice memo 🗣️",
+    "Remember to read the text aloud and send it as audio 📢",
+    "Read the text aloud and send it as a voice message 🎧",
+    "Don't forget to voice the text and send it as a note 🎤",
+    "Speak the text clearly and share it as a voice note 🎙️",
+    "Kindly read the text aloud and record a voice message 🎤",
+    "Please verbalize the text and send it as an audio note 📢",
+    "A gentle reminder to read the text and send a voice memo 🎧",
+    "Say the text aloud and send it as a voice recording 🗣️",
 ]
 
+voice_note_reminder_2 = [
+    "Be sure to complete the process: speak your answer and send a voice note 🎤.",
+    "Remember the last step: respond out loud and send it as an audio message 🔊.",
+    "Finish strong! Say your answer aloud and send a voice note 🎧.",
+    "Final step: voice your answer and send it over as a voice message 📢.",
+    "Don't forget: answer out loud and share it as a voice note 🎙️.",
+    "Complete the task: speak your answer and deliver it via voice note 🎤.",
+    "Make sure to answer aloud and send it as a voice recording 🗣️.",
+    "Wrap it up: say your answer and send it as a voice note 🎧.",
+    "Don't skip this: answer aloud and send an audio message 📣.",
+    "Last step: respond verbally and send it as a voice note 🎙️.",
+]
+
+
+refText_1 = "In my previous role at a call center, I managed customer inquiries and resolved issues efficiently. I utilized active listening and problem-solving skills to enhance customer satisfaction. My ability to handle high-stress situations and maintain a professional demeanor contributed to a positive customer experience. This role honed my communication and multitasking abilities."
+
+
+question_1 = "Describe a film character played by an actor/actress whom you admire."
 
 def random_message(m_list: list):
     l = len(m_list) - 1

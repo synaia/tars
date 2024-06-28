@@ -1,4 +1,4 @@
-SELECT stage_id FROM hr_applicant WHERE phone_sanitized = '18099999999';
+SELECT lead_heat_check FROM hr_applicant WHERE phone_sanitized = '18099999999';
 
 
 
@@ -42,7 +42,7 @@ CREATE TABLE speech_log (
     msisdn VARCHAR(20) NOT NULL,
     campaign VARCHAR(20) NOT NULL,
     response JSONB,
-	audio_path VARCHAR(300),
+	audio_path VARCHAR(500),
 	response_date TIMESTAMP NOT NULL
 );
 
@@ -62,8 +62,6 @@ SELECT * FROM hr_recruitment_stage;
 SELECT * FROM speech_log;
 
 SELECT * FROM company_info;
-
-
 
 ---- ------ - - - - - - ------------------
 
@@ -138,7 +136,7 @@ ORDER by id desc;
 
 
 
-UPDATE hr_applicant SET lead_last_update = NOW() - interval '0' day WHERE phone_sanitized = '18099999999';
+UPDATE hr_applicant SET lead_last_update = NOW() - interval '9' day WHERE phone_sanitized = '18099999999';
 UPDATE hr_applicant SET lead_last_client_update = NOW() - interval '1' day WHERE phone_sanitized = '18099999999';
 UPDATE hr_applicant SET stage_id = 4 WHERE id = 20; -- 4 == "Evaluation"
 
@@ -157,5 +155,11 @@ SELECT * FROM hr_heat_check;
  SELECT h.lead_heat_check 
                 FROM public.hr_applicant AS a
                 INNER JOIN public.hr_heat_check AS h
-                ON a.id = h.applicant_id
+                ON a.id = h.applicant_id;
+
+
+SELECT * FROM va_chat_history;
+SELECT * FROM va_applicant_stage;
+SELECT * FROM va_speech_log;
+
 

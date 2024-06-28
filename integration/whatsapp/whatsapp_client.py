@@ -99,7 +99,8 @@ class WhatsAppClient:
         return response.status_code
     
     
-    def convert_to_wav(self, ogg_file_name: str) -> None:
+    def convert_to_wav(self, ogg_file_name: str, step: int) -> None:
+        wave_path = ogg_file_name.replace(".ogg", f"__step_{str(step)}.wav")
         command = [
             'ffmpeg',
             '-y',
@@ -107,19 +108,21 @@ class WhatsAppClient:
             '-acodec', 'pcm_s16le',
             '-ac', '1',
             '-ar', '16000',
-            ogg_file_name.replace(".ogg", ".wav")
+            wave_path
         ]
         try:
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
             if result.returncode != 0:
                 raise RuntimeError(f"Error ffmpeg {result.stderr}")
+            return wave_path
         except subprocess.CalledProcessError as e:
             print(f"Error during conversion: {e}")
     
 
-    def process_audio(self, audio_id: str, msisdn: str, campaign: str):
+    def process_audio(self, audio_id: str, msisdn: str, campaign: str, step: int):
         print(f"{self.API_URL_ALONE}{audio_id}")
         response = requests.get(f"{self.API_URL_ALONE}/{audio_id}", headers=self.headers, stream=True)
+        wave_path = None
         if response.status_code == 200:
             body = json.loads(response.text)
             url =body['url']
@@ -130,10 +133,10 @@ class WhatsAppClient:
                     for chunk in mediaresponse.iter_content(chunk_size=1024):
                         ogg.write(chunk)
                 print(f'File {audio} downloaded successfully.')
-                self.convert_to_wav(audio)
+                wave_path = self.convert_to_wav(audio, step)
             else:
                 print(f"Failed to download file. Status code: {mediaresponse.status_code}")
-        return response.status_code, audio.replace(".ogg", ".wav")
+        return response.status_code, wave_path
 
 
     def process_notification(self, data):

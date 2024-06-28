@@ -6,10 +6,10 @@ from typing import Any, List, Dict
 from datetime import datetime, timedelta
 import transitions
 from integration.whatsapp.whatsapp_client import WhatsAppClient
-from integration.speech.client import SpeechaceClient
-from integration.odoo.schema import PronunciationScore, GrammarScore, Stage
+from integration.speech.client import SpeechSuperClient
+from integration.odoo.schema import SpeechScore, GrammarScore, Stage
 from integration.odoo.tables import (
-    odoo_message, ChatHistory, VAStage, HrApplicant, RecruitmentStage, SpeechaceLog
+    odoo_message, ChatHistory, ApplicantStage, HrApplicant, HrRecruitmentStage, SpeechaceLog
 )
 from samantha.src.configs import (
     SessionLocal,
@@ -22,7 +22,7 @@ from samantha.src.configs import (
     cefr_grammar_tokenizer,
     id2label,
 )
-from samantha.src.static_messages import random_message, basic_form, assesment_form, voice_note, voice_note_received_yet, switch_to_text, assignment_reminder, friendly_reminder, voice_note_reminder
+from samantha.src.static_messages import random_message, basic_form, assesment_form, voice_note, voice_note_received_yet, switch_to_text, assignment_reminder, friendly_reminder, voice_note_reminder_1, voice_note_reminder_2, refText_1, question_1
 
 
 
@@ -38,7 +38,7 @@ device = get_device()
 
 class SchedulerMachine(transitions.Machine):
     def __init__(self,  msisdn: str, campaign: str, wtsapp_client: WhatsAppClient) -> None:
-        states = ["draft", "new", "recording", "evaluation", "appointment", "draft_appointment"]
+        states = ["draft", "new", "recording_1", "recording_2", "evaluation", "appointment", "draft_appointment"]
         #TODO: meter deterctor de prompt-injection al principio
         #TODO: IMPORTANTE: debe estar en memoria para rapido acceso. ciclico, viejos se van borrando.
         self.data = DataManager()
@@ -66,8 +66,8 @@ class SchedulerMachine(transitions.Machine):
         return response['llm']
     
     
-    def recording_module(self, text: str, chat_history: list[str], utterance_type: str) -> str:
-        data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type}
+    def recording_module(self, text: str, chat_history: list[str], utterance_type: str, step: int) -> str:
+        data = {'text': text, 'chat_history': chat_history, 'utterance_type': utterance_type, 'step': step}
         response = requests.post("http://localhost:9091/llm/recording", json=data)
         response = response.json()
         return response['llm']
@@ -150,14 +150,17 @@ class SchedulerMachine(transitions.Machine):
         if self.state == "draft":
             response = self.draft_module(text, self.chat_history, utterance_type)
             if len(self.chat_history) == 0:
-                welcome = """Hello and welcome! 🎉 We're excited to assist you with your recruitment journey. Whether you have questions about your application, need help scheduling an interview we're here to help. Let's get started """
+                welcome = """*Hello and welcome!* 🎉 We're excited to assist you with your recruitment journey. Whether you have questions about your application, need help scheduling an interview we're here to help. Let's get started """
                 response = list(response)
                 response[0] = welcome + response[0]
         elif self.state == "new":
             response = self.new_module(text, self.chat_history, utterance_type)
-        elif self.state == "recording":
-            response = self.recording_module(text, self.chat_history, utterance_type)
-        elif self.state == "evaluation": #TODO: TypeError: SchedulerMachine.evaluation_module() takes 2 positional arguments but 4 were given
+        elif self.state == "recording_1":
+            response = self.recording_module(text, self.chat_history, utterance_type, step=1)
+            response[0] = f"{response[0]}\n*{refText_1}*"
+        elif self.state == "recording_2":
+            response = self.recording_module(text, self.chat_history, utterance_type, step=2)
+        elif self.state == "evaluation":
             response = self.evaluation_module(text, self.chat_history, utterance_type)
 
         if utterance_type == "continue_later":
@@ -172,19 +175,66 @@ class SchedulerMachine(transitions.Machine):
     
 
     def manage_audio(self, audio_id: str):
-        if self.state == "recording":
+        if self.state.startswith("recording"):
+            if self.state == "recording_1":
+                step = 1
+            if self.state == "recording_2":
+                step = 2
             self.step_completed()
-            status_code, audio = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign)
+            status_code, wave_path = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign, step)
+            #TODO add voice_note_1, voice_note_2
             message = random_message(voice_note)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             #TODO: call method API here to evaluate audio.
-            print(audio)
+            print(wave_path)
+            speech = SpeechSuperClient()
             if status_code == 200:
-                scores = SpeechaceClient().request(text="If someone is upset on WhatsApp, you can be kind and listen to them. You can say sorry and try to help them feel better. Maybe you can ask what they need and find a way to fix the problem.", audio=audio)
-                data = {"cefr_score": scores['text_score']['cefr_score']['pronunciation']}
-                scheduler.add_job(self.set_pronun_score_wrapper, 'date', run_date=None, args=[data])
-                scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio, scores])
-            return
+                if step == 1: #scripted
+                    scores = speech.request_scripted(
+                        audio_name=wave_path,
+                        coreType=SpeechSuperClient.PARAG_EVAL,
+                        refText=refText_1
+                    )
+                    result = scores['result']
+                    data = {
+                        'speech_overall': result['overall'],
+                        'speech_refText': refText_1,
+                        'speech_duration': result['duration'],
+                        'speech_fluency': result['fluency'],
+                        'speech_integrity': result['integrity'],
+                        'speech_pronunciation': result['pronunciation'],
+                        'speech_rhythm': result['rhythm'],
+                        'speech_speed': result['speed'],
+                        'speech_audio_path': wave_path,
+                        'speech_warning': result.get('warning', None),
+                    }
+                    scheduler.add_job(self.set_speech_wrapper, 'date', run_date=None, args=[data])
+
+                if step == 2: #UNSCRIPTED
+                    scores = speech.request_spontaneous_unscripted(
+                        audio_name=wave_path,
+                        coreType=SpeechSuperClient.SPEACK_EVAL_PRO,
+                        question_prompt=question_1
+                    )
+                    result = scores['result']
+                    data = {
+                        'speech_open_question': question_1,
+                        'speech_unscripted_overall_score': result['overall'],
+                        'speech_unscripted_length': result['effective_speech_length'],
+                        'speech_unscripted_fluency_coherence': result['fluency_coherence'],
+                        'speech_unscripted_grammar': result['grammar'],
+                        'speech_unscripted_lexical_resource': result['lexical_resource'],
+                        'speech_unscripted_pause_filler': result['pause_filler'],
+                        'speech_unscripted_pronunciation': result['pronunciation'],
+                        'speech_unscripted_relevance': result['relevance'],
+                        'speech_unscripted_speed': result['speed'],
+                        'speech_unscripted_audio_path': wave_path,
+                        'speech_unscripted_warning': result.get('warning', None),
+                    }
+                    scheduler.add_job(self.set_speech_unscripted_wrapper, 'date', run_date=None, args=[data])
+            else:
+                print(F"******* ERROR {status_code} *********")
+
         if self.state == "evaluation":
             message = random_message(voice_note_received_yet)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
@@ -236,7 +286,7 @@ class SchedulerMachine(transitions.Machine):
                 # Remove the previous inactivity job
                 if isinstance(previous_inactivity_id, bytes):
                     previous_inactivity_id = previous_inactivity_id.decode('utf-8')
-                    try: 
+                    try:
                         scheduler.remove_job(previous_inactivity_id)
                     except Exception as ex:
                         print(f'{previous_inactivity_id} {ex}')
@@ -251,8 +301,11 @@ class SchedulerMachine(transitions.Machine):
         elif self.state == "new":
             message = random_message(friendly_reminder)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
-        elif self.state == "recording":
-            message = random_message(voice_note_reminder)
+        elif self.state == "recording_1":
+            message = random_message(voice_note_reminder_1)
+            self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
+        elif self.state == "recording_2":
+            message = random_message(voice_note_reminder_2)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
         print(message)
 
@@ -311,8 +364,12 @@ class SchedulerMachine(transitions.Machine):
         self.data.set_grammar_score(score)
 
     
-    def set_pronun_score_wrapper(self, score: dict) -> None:
-        self.data.set_pronunciation_score(self.msisdn, score)
+    def set_speech_unscripted_wrapper(self, data: dict) -> None:
+        self.data.set_speech_unscripted_score(self.msisdn, data)
+
+
+    def set_speech_wrapper(self, data: dict) -> None:
+        self.data.set_speech_score(self.msisdn, data)
 
 
     def validate_grammar(self, text: str):
@@ -368,7 +425,7 @@ class DataManager():
         for record in records:
             self.add_chat_history(record.msisdn, record.campaign, record.message, record.source, record.whatsapp_id, record.sending_date, record.readed, record.collected) # .isoformat()
 
-        states = db.query(VAStage).all()
+        states = db.query(ApplicantStage).all()
         for s in states:
             self.set_state(s.msisdn, s.campaign, s.state, s.last_update)
 
@@ -504,8 +561,8 @@ class DataManager():
         db = SessionLocal()
         chat_record = ChatHistory(
             msisdn=msisdn,
-            message=message,
             campaign=campaign,
+            message=message,
             source=source,
             whatsapp_id=whatsapp_id,
             sending_date=sending_date,
@@ -522,9 +579,9 @@ class DataManager():
         state = self.get_mem_state(msisdn, campaign)
         if len(state) == 0:
             db = SessionLocal()
-            va_stage_app = db.query(VAStage).filter_by(msisdn=msisdn, campaign=campaign).first()
+            va_stage_app = db.query(ApplicantStage).filter_by(msisdn=msisdn, campaign=campaign).first()
             if va_stage_app is None:
-                va_stage_app = VAStage(msisdn=msisdn, campaign=campaign, state=DEFAULT_STATE, last_update=self.now_)
+                va_stage_app = ApplicantStage(msisdn=msisdn, campaign=campaign, state=DEFAULT_STATE, last_update=self.now_)
                 db.add(va_stage_app)
                 db.commit()
                 db.refresh(va_stage_app)
@@ -555,24 +612,25 @@ class DataManager():
     
 
     def odoo_update_state(self, msisdn: str, campaign: str, state: str):
-        if state in ["new", "recording", "evaluation"]:
-            self.applicant_stage(state, msisdn)
+        if state in ["new", "recording_1", "recording_2", "evaluation"]:
+            self.applicant_stage(state, msisdn, campaign)
         self.update_stage({
             'msisdn': msisdn,
             'campaign': campaign,
             'state': state,
         })
+        self._update_applicant(msisdn, campaign)
 
 
     def update_stage(self, st: Stage) -> None:
         if isinstance(st, dict): st = Stage(**st)
         db = SessionLocal()
-        record = db.query(VAStage).filter_by(msisdn=st.msisdn, campaign=st.campaign).first()
+        record = db.query(ApplicantStage).filter_by(msisdn=st.msisdn, campaign=st.campaign).first()
         if record:
             record.state = st.state
             record.last_update = self.now_
         else:
-            new_record = VAStage(
+            new_record = ApplicantStage(
                 msisdn=st.msisdn,
                 campaign=st.campaign,
                 state=st.state,
@@ -586,8 +644,9 @@ class DataManager():
     def get_applicant_state(self, msisdn: str) -> str:
         db = SessionLocal()
         try:
+            #TODO: falta filtrar por `campaign`
             record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
-            applicant_state = db.query(RecruitmentStage).filter_by(id=record.stage_id).first()
+            applicant_state = db.query(HrRecruitmentStage).filter_by(id=record.stage_id).first()
             return applicant_state.name['en_US']
         except Exception as ex:
             print(ex)
@@ -597,13 +656,14 @@ class DataManager():
 
     def _update_applicant(self, msisdn: str, campaign: str) -> None:
         db = SessionLocal()
+        #TODO: falta filtrar por `campaign`
         record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
         record.lead_last_update = datetime.now(self.now_)
         db.commit()
         db.close()
 
     
-    def applicant_stage(self, state: str, msisdn: str):
+    def applicant_stage(self, state: str, msisdn: str, campaign: str):
         """
         1 - New (new -> basic form completed)
         2 - Grammar Check ()
@@ -618,6 +678,7 @@ class DataManager():
         }
         db = SessionLocal()
         try:
+            #TODO: falta filtrar por `campaign`
             record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
             record.stage_id = states[state]
             db.commit()
@@ -631,6 +692,7 @@ class DataManager():
         if isinstance(score, dict): score = GrammarScore(**score)
         db = SessionLocal()
         try:
+            #TODO: falta filtrar por `campaign`
             record = db.query(HrApplicant).filter_by(phone_sanitized=score.msisdn).first()
             record.a1_score = score.a1_score
             record.a2_score = score.a2_score
@@ -645,24 +707,53 @@ class DataManager():
             db.close()
 
     
-    def set_pronunciation_score(self, msisdn: str, score: PronunciationScore) -> None:
-        if isinstance(score, dict): score = PronunciationScore(**score)
+    def set_speech_unscripted_score(self, msisdn: str, data: SpeechScore) -> None:
+        if isinstance(data, dict): data = SpeechScore(**data)
         db = SessionLocal()
         try:
+            #TODO: falta filtrar por `campaign`
             record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
-            record.cefr_score = score.cefr_score
-            # record.flue_c_score = score.fluent_c
-            # record.voca_c_score = score.vocab_c
-            # record.gram_c_score = score.gramm_c
-            # record.pron_score = score.pronun
-            # record.flue_score = score.fluent
-            # record.voca_score = score.vocab
-            # record.gram_score = score.gramm
+            record.speech_open_question = data.speech_open_question
+            record.speech_unscripted_overall_score = data.speech_unscripted_overall_score
+            record.speech_unscripted_length = data.speech_unscripted_length
+            record.speech_unscripted_fluency_coherence = data.speech_unscripted_fluency_coherence
+            record.speech_unscripted_grammar = data.speech_unscripted_grammar
+            record.speech_unscripted_lexical_resource = data.speech_unscripted_lexical_resource
+            record.speech_unscripted_pause_filler = data.speech_unscripted_pause_filler
+            record.speech_unscripted_pronunciation = data.speech_unscripted_pronunciation
+            record.speech_unscripted_relevance = data.speech_unscripted_relevance
+            record.speech_unscripted_speed = data.speech_unscripted_speed
+            record.speech_unscripted_audio_path = data.speech_unscripted_audio_path
+            record.speech_unscripted_warning = data.speech_unscripted_warning
             db.commit()
         except Exception as ex:
             print(ex)
         finally:
             db.close()
+
+
+    def set_speech_score(self, msisdn: str, data: SpeechScore) -> None:
+        if isinstance(data, dict): data = SpeechScore(**data)
+        db = SessionLocal()
+        try:
+            #TODO: falta filtrar por `campaign`
+            record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
+            record.speech_overall = data.speech_overall
+            record.speech_refText = data.speech_refText
+            record.speech_duration = data.speech_duration
+            record.speech_fluency = data.speech_fluency
+            record.speech_integrity = data.speech_integrity
+            record.speech_pronunciation = data.speech_pronunciation
+            record.speech_rhythm = data.speech_rhythm
+            record.speech_speed = data.speech_speed
+            record.speech_audio_path = data.speech_audio_path
+            record.speech_warning = data.speech_warning
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
 
     def speech_log(self, msisdn: str, campaign: str, audio_path: str, response: dict):
         log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, audio_path=audio_path, response_date=self.now_)

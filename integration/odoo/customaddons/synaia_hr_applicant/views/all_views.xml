@@ -6,13 +6,46 @@
         <field name="arch" type="xml">
             <xpath expr="//form/sheet" position="inside" label="Speech Overall Score">
             <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
-                <group string="Speech Details">
-                    <group>
+                <group string="SPONTANEOUS SPEECH SCORE">
+                    <group colspan="2">
+                        <field name="speech_open_question" readonly="1" style="font-weight: bold;" />
+                    </group>
+                    <group colspan="2">
                         <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
-                        <field name="speech_overall_score" 
+                        <field name="speech_unscripted_overall_score" 
                                string=" Speech Overall Score" 
                                widget="percentpie" 
                                />
+                    </group>
+                    <group colspan="2">
+                        <group>
+                            <field name="speech_unscripted_fluency_coherence" widget="progressbar" />
+                            <field name="speech_unscripted_pronunciation" widget="progressbar" />
+                            <field name="speech_unscripted_grammar" widget="progressbar" />
+                            <field name="speech_unscripted_length" readonly="1" style="font-weight: bold;" />
+                        </group>
+                        <group>
+                            <field name="speech_unscripted_lexical_resource" widget="progressbar" />
+                            <field name="speech_unscripted_relevance" widget="progressbar" />
+                            <field name="speech_unscripted_speed" widget="progressbar" />
+                            <field name="speech_unscripted_pause_filler" readonly="1" style="font-weight: bold;" />
+                        </group>
+                    </group>
+                    <group colspan="2">
+                        <field name="speech_unscripted_warning" readonly="1" style="font-size: 10px; font-weight: bold; font-color: red;" />
+                    </group>
+                    <group colspan="2">
+                        <field name="speech_unscripted_audio_path" readonly="1"  />
+                    </group>
+                </group>
+
+                <group string="SCRIPTED SPEECH SCORE">
+                    <group>
+                        <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
+                        <field name="speech_overall" 
+                            string=" Speech Overall Score" 
+                            widget="percentpie" 
+                            />
                     </group>
                     <group colspan="2">
                         <group>
@@ -26,8 +59,14 @@
                             <field name="speech_speed" widget="progressbar" />
                         </group>
                     </group>
-                    <group>
+                    <group colspan="2">
+                        <field name="speech_refText" readonly="1" style="font-size: 12px; font-weight: bold; font-color: blue;" />
+                    </group>
+                    <group colspan="2">
                         <field name="speech_warning" readonly="1" style="font-size: 10px; font-weight: bold; font-color: red;" />
+                    </group>
+                    <group colspan="2">
+                        <field name="speech_audio_path" readonly="1"  />
                     </group>
                 </group>
             </xpath>
