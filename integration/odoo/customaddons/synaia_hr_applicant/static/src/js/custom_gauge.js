@@ -64,12 +64,12 @@ export class CustomGauge extends Component {
 
         // Draw the label text
         ctx.fillStyle = '#000';
-        ctx.font = '20px Arial';
+        ctx.font = '30px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(lead_heat_check_label, 100, 80);
 
         // Draw the percentage value
-        ctx.font = '30px Arial';
+        ctx.font = '22px Arial';
         ctx.fillText(`${gaugeValue}`, 100, 120);
     }
 }
