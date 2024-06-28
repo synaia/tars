@@ -15,16 +15,16 @@ basic_form = [
 ]
 
 assesment_form = [
-    "Hey, many thanks! You've made great progress—well done! 🚀 The last step is to send me a voice note 🗣️ of up to 2 minutes for evaluation.",
+    "Hey, many thanks! You've made great progress—well done! 🚀 The next step is to send me a voice note 🗣️ of up to 2 minutes for evaluation.",
     "Thank you so much! You've advanced significantly—congratulations! 🚀 The final task is to submit a voice note 🗣️ that's no longer than 2 minutes for review.",
     "Appreciate it! You've taken a big step forward—kudos! 🚀 Now, just send me a voice note 🗣️ under 2 minutes for evaluation.",
-    "Thanks a lot! You've made an important leap—awesome job! 🚀 The last part is to send a voice note 🗣️ of no more than 2 minutes for assessment.",
-    "Thank you very much! You've moved ahead impressively—great job! 🚀 The concluding step is to record and send a voice note 🗣️ under 2 minutes for evaluation.",
-    "Hey, thanks a ton! You've achieved a major milestone—congrats! 🚀 The final thing is to send over a voice note 🗣️ up to 2 minutes long for evaluation purposes.",
+    "Thanks a lot! You've made an important leap—awesome job! 🚀 The next part is to send a voice note 🗣️ of no more than 2 minutes for assessment.",
+    "Thank you very much! You've moved ahead impressively—great job! 🚀 The next step is to record and send a voice note 🗣️ under 2 minutes for evaluation.",
+    "Hey, thanks a ton! You've achieved a major milestone—congrats! 🚀 The next thing is to send over a voice note 🗣️ up to 2 minutes long for evaluation purposes.",
     "Much appreciated! You've made remarkable progress—congratulations! 🚀 Please send a voice note 🗣️ lasting no longer than 2 minutes for the final review.",
-    "Thanks a bunch! You've taken a crucial step forward—nice work! 🚀 The last action is to submit a voice note 🗣️ of 2 minutes or less for evaluation.",
-    "Thank you immensely! You've made significant strides—well done! 🚀 The final requirement is to send me a voice note 🗣️ that’s no longer than 2 minutes for assessment.",
-    "Hey, big thanks! You've moved forward significantly—excellent! 🚀 The last step is to record a voice note 🗣️ of up to 2 minutes for evaluation purposes."
+    "Thanks a bunch! You've taken a crucial step forward—nice work! 🚀 The next action is to submit a voice note 🗣️ of 2 minutes or less for evaluation.",
+    "Thank you immensely! You've made significant strides—well done! 🚀 The requirement is to send me a voice note 🗣️ that’s no longer than 2 minutes for assessment.",
+    "Hey, big thanks! You've moved forward significantly—excellent! 🚀 The next step is to record a voice note 🗣️ of up to 2 minutes for evaluation purposes."
 ]
 
 

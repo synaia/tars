@@ -9,7 +9,7 @@ from integration.whatsapp.whatsapp_client import WhatsAppClient
 from integration.speech.client import SpeechSuperClient
 from integration.odoo.schema import SpeechScore, GrammarScore, Stage
 from integration.odoo.tables import (
-    odoo_message, ChatHistory, ApplicantStage, HrApplicant, HrRecruitmentStage, SpeechaceLog
+    odoo_message, ChatHistory, ApplicantStage, HrApplicant, HrRecruitmentStage, SpeechLog
 )
 from samantha.src.configs import (
     SessionLocal,
@@ -209,12 +209,16 @@ class SchedulerMachine(transitions.Machine):
                         'speech_warning': result.get('warning', None),
                     }
                     scheduler.add_job(self.set_speech_wrapper, 'date', run_date=None, args=[data])
+                    audio_path = wave_path
+                    response = scores
+                    scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio_path, response])
 
                 if step == 2: #UNSCRIPTED
                     scores = speech.request_spontaneous_unscripted(
                         audio_name=wave_path,
                         coreType=SpeechSuperClient.SPEACK_EVAL_PRO,
-                        question_prompt=question_1
+                        question_prompt=question_1,
+                        task_type=SpeechSuperClient.IELTS_PART3
                     )
                     result = scores['result']
                     data = {
@@ -229,9 +233,13 @@ class SchedulerMachine(transitions.Machine):
                         'speech_unscripted_relevance': result['relevance'],
                         'speech_unscripted_speed': result['speed'],
                         'speech_unscripted_audio_path': wave_path,
+                        'speech_unscripted_transcription': result['transcription'],
                         'speech_unscripted_warning': result.get('warning', None),
                     }
                     scheduler.add_job(self.set_speech_unscripted_wrapper, 'date', run_date=None, args=[data])
+                    audio_path = wave_path
+                    response = scores
+                    scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio_path, response])
             else:
                 print(F"******* ERROR {status_code} *********")
 
@@ -383,25 +391,10 @@ class SchedulerMachine(transitions.Machine):
             "b2_score": proba['B2'] * 100,
             "c1_score": proba['C1'] * 100,
             "c2_score": proba['C2'] * 100,
+            "user_input_text": text,
         }
         scheduler.add_job(self.set_grammar_score_wrapper, 'date', run_date=None, args=[score])
 
-    
-    def validate_pronunciation(self, text: str):
-        # proba, p_max =  self.grammar_probas_scores(text=text)
-        score = {
-            "msisdn": self.msisdn,
-            "cefr_score": "A",
-            "pronun_c": "B",
-            "fluent_c": "C",
-            "vocab_c": "D",
-            "gramm_c": "E",
-            "pronun": 0.89,
-            "fluent": 0.34,
-            "vocab": 0.36,
-            "gramm": 0.64,
-        }
-        scheduler.add_job(self.set_grammar_score_wrapper, 'date', run_date=None, args=[score])
 
     @property
     def chat_history(self) -> List[str]:
@@ -656,11 +649,15 @@ class DataManager():
 
     def _update_applicant(self, msisdn: str, campaign: str) -> None:
         db = SessionLocal()
-        #TODO: falta filtrar por `campaign`
-        record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
-        record.lead_last_update = datetime.now(self.now_)
-        db.commit()
-        db.close()
+        try:
+            #TODO: falta filtrar por `campaign`
+            record = db.query(HrApplicant).filter_by(phone_sanitized=msisdn).first()
+            record.lead_last_update =self.now_
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
 
     
     def applicant_stage(self, state: str, msisdn: str, campaign: str):
@@ -700,6 +697,7 @@ class DataManager():
             record.b2_score = score.b2_score
             record.c1_score = score.c1_score
             record.c2_score = score.c2_score
+            record.user_input_text = score.user_input_text
             db.commit()
         except Exception as ex:
             print(ex)
@@ -725,6 +723,7 @@ class DataManager():
             record.speech_unscripted_speed = data.speech_unscripted_speed
             record.speech_unscripted_audio_path = data.speech_unscripted_audio_path
             record.speech_unscripted_warning = data.speech_unscripted_warning
+            record.speech_unscripted_transcription = data.speech_unscripted_transcription
             db.commit()
         except Exception as ex:
             print(ex)
@@ -756,7 +755,7 @@ class DataManager():
 
 
     def speech_log(self, msisdn: str, campaign: str, audio_path: str, response: dict):
-        log = SpeechaceLog(msisdn=msisdn, campaign=campaign, response=response, audio_path=audio_path, response_date=self.now_)
+        log = SpeechLog(msisdn=msisdn, campaign=campaign, response=response, audio_path=audio_path)
         db = SessionLocal()
         try:
            db.add(log)

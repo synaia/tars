@@ -71,6 +71,7 @@ class GrammarScore(BaseModel):
     b2_score: float | None = None
     c1_score: float | None = None
     c2_score: float | None = None
+    user_input_text: str | None = None
 
     class Config:
         from_attributes = True        
@@ -86,11 +87,12 @@ class SpeechScore(BaseModel):
     speech_unscripted_fluency_coherence: float | None = None
     speech_unscripted_grammar: float | None = None
     speech_unscripted_lexical_resource: float | None = None
-    speech_unscripted_pause_filler: str | None = None
+    speech_unscripted_pause_filler: dict | None = None
     speech_unscripted_pronunciation: float | None = None
     speech_unscripted_relevance: float | None = None
     speech_unscripted_speed: float | None = None
     speech_unscripted_audio_path: str | None = None
+    speech_unscripted_transcription: str | None = None
     speech_unscripted_warning: str | None = None
     #
     speech_overall: float | None = None

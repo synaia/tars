@@ -97,6 +97,7 @@ class HrApplicant(Base):
     b2_score = Column(Numeric)
     c1_score = Column(Numeric)
     c2_score = Column(Numeric)
+    user_input_text = Column(String)
     lead_last_update = Column(DateTime)
     lead_last_client_update = Column(DateTime)
     lead_max_temperature = Column(Double)
@@ -108,10 +109,11 @@ class HrApplicant(Base):
     speech_unscripted_fluency_coherence = Column(Double)
     speech_unscripted_grammar = Column(Double)
     speech_unscripted_lexical_resource = Column(Double)
-    speech_unscripted_pause_filler = Column(String)
+    speech_unscripted_pause_filler = Column(JSON)
     speech_unscripted_pronunciation = Column(Double)
     speech_unscripted_relevance = Column(Double)
     speech_unscripted_speed = Column(Double)
+    speech_unscripted_transcription = Column(String)
     speech_unscripted_audio_path = Column(String(300))
     speech_unscripted_warning = Column(String(300))
     # scripted soore
@@ -192,7 +194,7 @@ class OdooMessages():
             a_id = applicant.create({
                 'stage_id': 1,
                 'company_id': 1,
-                'job_id': 3,
+                'job_id': 1,
                 'name': 'Sales Agent',
                 'partner_name': apl.name,
                 'phone_sanitized': apl.phone_sanitized,

@@ -19,7 +19,10 @@ API_URL = f"https://api.speechsuper.com/"
 class SpeechSuperClient:
     PARAG_EVAL = "para.eval"
     SPEACK_EVAL_PRO = "speak.eval.pro"
-
+    IELTS_PART1 = 'ielts_part1'
+    IELTS_PART2 = 'ielts_part2'
+    IELTS_PART3 = 'ielts_part3'
+    
     def __init__(self) -> None:
         self.headers = {}
 
@@ -171,7 +174,8 @@ if __name__ == "__main__":
     scores = SpeechSuperClient().request_spontaneous_unscripted(
         audio_name=audio,
         coreType=SpeechSuperClient.SPEACK_EVAL_PRO,
-        question_prompt=question
+        question_prompt=question,
+        task_type=SpeechSuperClient.IELTS_PART3
     )
     print(scores)
 

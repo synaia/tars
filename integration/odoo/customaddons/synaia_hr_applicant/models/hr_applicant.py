@@ -26,6 +26,7 @@ class HrApplicant(models.Model):
     b2_score = fields.Float(string='B2', help="B2 score of this applicant", default=0.000, digits=(6, 3))
     c1_score = fields.Float(string='C1', help="C1 score of this applicant", default=0.000, digits=(6, 3))
     c2_score = fields.Float(string='C2', help="C2 score of this applicant", default=0.000, digits=(6, 3))
+    user_input_text = fields.Text(string="User input text")
 
 
     #UNScripted Speech Overall score
@@ -36,10 +37,11 @@ class HrApplicant(models.Model):
     speech_unscripted_fluency_coherence = fields.Float(string='Fluency coherence', help="Fluency coherence of this applicant", default=0.0)
     speech_unscripted_grammar = fields.Float(string='Grammar score', help="Grammar score  of this applicant", default=0.0)
     speech_unscripted_lexical_resource = fields.Float(string='Lexical score', help="Lexical score of this applicant", default=0.0)
-    speech_unscripted_pause_filler = fields.Char(string='Pause fillers', size=300)
+    speech_unscripted_pause_filler = fields.Json(string='Pause fillers')
     speech_unscripted_pronunciation = fields.Float(string='Pronunciation', help="Pronunciation of this applicant", default=0.0)
     speech_unscripted_relevance = fields.Float(string='Relevance', help="Relevance of this applicant", default=0.0)
     speech_unscripted_speed = fields.Float(string='Speed', help="Speed of this applicant", default=0.0)
+    speech_unscripted_transcription = fields.Text(string="Transcription")
     speech_unscripted_warning = fields.Char(string='Warning', size=300)
     speech_unscripted_audio_path = fields.Char(string='Audio path', size=300)
 

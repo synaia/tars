@@ -32,6 +32,9 @@
                         </group>
                     </group>
                     <group colspan="2">
+                        <field name="speech_unscripted_transcription" readonly="1" style="font-size: 10px; font-weight: bold;" />
+                    </group>
+                    <group colspan="2">
                         <field name="speech_unscripted_warning" readonly="1" style="font-size: 10px; font-weight: bold; font-color: red;" />
                     </group>
                     <group colspan="2">
@@ -91,6 +94,7 @@
                     <field name="b2_score" widget="progressbar"/>
                     <field name="c1_score" widget="progressbar"/>
                     <field name="c2_score" widget="progressbar"/>
+                    <field name="user_input_text" readonly="1" style="font-size: 12px; font-weight: bold; font-color: blue;" />
                 </group>
             </xpath>
 
