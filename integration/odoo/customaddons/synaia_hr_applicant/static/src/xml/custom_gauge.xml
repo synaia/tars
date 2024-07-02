@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
     <t t-name="synaia_hr_applicant.GaugeFieldTemplate">
         <div>
-            <canvas  t-ref="gaugeCanvas" width="200" height="200"></canvas>
+            <canvas  t-ref="gaugeCanvas" width="200" height="145"></canvas>
         </div>
     </t>
 </templates>
