@@ -84,6 +84,7 @@
                 </page>
                 <!-- </notebook> -->
             </xpath>
+
             <xpath expr="//field[@name='partner_name']" position="replace">
                 <div style="width: 100%;">
                     <!-- <label for="partner_name" class="oe_edit_only"/> -->
@@ -92,6 +93,9 @@
             </xpath>
             <xpath expr="//field[@name='kanban_state']" position="after">
                 <field name="photo_applicant" widget="image" class="oe_avatar" options="{'preview_image': 'photo_applicant', 'size': [128, 128]}"/>
+            </xpath>
+            <xpath expr="//field[@name='kanban_state']" position="attributes">
+                <attribute name="style">visibility: hidden;</attribute>
             </xpath>
 
             <xpath expr="//field[@name='interviewer_ids']" position="before">
@@ -121,7 +125,7 @@
                 <field name="user_id" string="Hiring Manager" />
             </xpath>
 
-            <xpath expr="//field[@name='email_from']" position="after"> 
+            <xpath expr="//field[@name='email_from']" position="before"> 
                 <field name="create_date" readonly="1"/>
             </xpath>
 
