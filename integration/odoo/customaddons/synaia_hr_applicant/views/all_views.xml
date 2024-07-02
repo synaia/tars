@@ -4,14 +4,13 @@
         <field name="model">hr.applicant</field>
         <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet" position="inside" label="Speech Overall Score">
-            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
-                <group string="SPONTANEOUS SPEECH SCORE">
+            <xpath expr="//page[@name='application_summary']" position="before">
+                <!-- <notebook> -->
+                <page string="SPONTANEOUS SPEECH SCORE">
                     <group colspan="2">
                         <field name="speech_open_question" readonly="1" style="font-weight: bold;" />
                     </group>
                     <group colspan="2">
-                        <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
                         <field name="speech_unscripted_overall_score" 
                                string=" Speech Overall Score" 
                                widget="percentpie" 
@@ -40,9 +39,9 @@
                     <group colspan="2">
                         <field name="speech_unscripted_audio_path" readonly="1"  />
                     </group>
-                </group>
+                </page>
 
-                <group string="SCRIPTED SPEECH SCORE">
+                <page string="SCRIPTED SPEECH SCORE">
                     <group>
                         <!-- <field name="speech_overall_score" readonly="1" style="font-size: 25px; font-weight: bold;"/> -->
                         <field name="speech_overall" 
@@ -71,10 +70,27 @@
                     <group colspan="2">
                         <field name="speech_audio_path" readonly="1"  />
                     </group>
-                </group>
+                </page>
+                <page string="GRAMMAR OVERALL SCORE">
+                    <group string="Grammar Details">
+                        <field name="a1_score" widget="progressbar"/>
+                        <field name="a2_score" widget="progressbar"/>
+                        <field name="b1_score" widget="progressbar"/>
+                        <field name="b2_score" widget="progressbar"/>
+                        <field name="c1_score" widget="progressbar"/>
+                        <field name="c2_score" widget="progressbar"/>
+                        <field name="user_input_text" readonly="1" style="font-size: 12px; font-weight: bold; font-color: blue;" />
+                    </group>
+                </page>
+                <!-- </notebook> -->
             </xpath>
-
-            <xpath expr="//field[@name='partner_name']" position="before">
+            <xpath expr="//field[@name='partner_name']" position="replace">
+                <div style="width: 100%;">
+                    <!-- <label for="partner_name" class="oe_edit_only"/> -->
+                    <field name="partner_name" placeholder="e.g. John Doe" nolabel="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='kanban_state']" position="after">
                 <field name="photo_applicant" widget="image" class="oe_avatar" options="{'preview_image': 'photo_applicant', 'size': [128, 128]}"/>
             </xpath>
 
@@ -83,19 +99,6 @@
                         options="{'lead_heat_check_label': 'lead_heat_check' }"
                 />
                 <field name="lead_heat_check" invisible="1" />
-            </xpath>
-
-            <xpath expr="//form/sheet" position="inside" label="Grammar Overall Score">
-            <!-- <xpath expr="//field[@name='salary_proposed']/following-sibling::*[1]" position="after"> -->
-                <group string="Grammar Details">
-                    <field name="a1_score" widget="progressbar"/>
-                    <field name="a2_score" widget="progressbar"/>
-                    <field name="b1_score" widget="progressbar"/>
-                    <field name="b2_score" widget="progressbar"/>
-                    <field name="c1_score" widget="progressbar"/>
-                    <field name="c2_score" widget="progressbar"/>
-                    <field name="user_input_text" readonly="1" style="font-size: 12px; font-weight: bold; font-color: blue;" />
-                </group>
             </xpath>
 
             <xpath expr="//field[@name='name']" position="attributes">
@@ -107,12 +110,28 @@
             <xpath expr="//field[@name='email_cc']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <xpath expr="//field[@name='user_id']" position="attributes">
+            
+            <!-- <xpath expr="//field[@name='user_id']" position="attributes">
                 <attribute name="string">Hiring Manager</attribute>
+            </xpath> -->
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
-            <xpath expr="//field[@name='interviewer_ids']" position="before"> <!-- Adjust the XPath to place the field correctly -->
+            <xpath expr="//field[@name='type_id']" position="after"> 
+                <field name="user_id" string="Hiring Manager" />
+            </xpath>
+
+            <xpath expr="//field[@name='email_from']" position="after"> 
                 <field name="create_date" readonly="1"/>
             </xpath>
+
+            <xpath expr="//field[@name='source_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="after"> 
+                <field name="source_id" />
+            </xpath>
+           
             
         </field>
     </record>
