@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
    secret = dotenv_values(".secret")
    app.state.secret = secret
    DataManager().data_mem_loader()
-   phoenix_debug()
+#    phoenix_debug()
    yield
    redis_conn.flushdb()
    #TODO: AND CLEAN MEMORY HERE !!!
@@ -59,6 +59,10 @@ app.include_router(llm_service.router)
 def I_am_alive():
     return "I am alive!!"
 
+
+@app.get("/dummy", status_code=200)
+def dummy():
+    return "Hey, What's up!"
 
 # app.add_middleware(
 #     CORSMiddleware,

@@ -158,8 +158,14 @@ SELECT * FROM hr_heat_check;
                 ON a.id = h.applicant_id;
 
 
-SELECT * FROM va_chat_history;
+SELECT * FROM va_chat_history ORDER BY id DESC;
 SELECT * FROM va_applicant_stage;
 SELECT * FROM va_speech_log;
+
+TRUNCATE TABLE va_chat_history;
+TRUNCATE TABLE va_applicant_stage;
+TRUNCATE TABLE va_speech_log;
+
+
 
 

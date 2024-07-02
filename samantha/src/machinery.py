@@ -315,7 +315,7 @@ class SchedulerMachine(transitions.Machine):
         elif self.state == "recording_2":
             message = random_message(voice_note_reminder_2)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
-        print(message)
+        print("? Evaluation state ")
 
 
     def message_deliver(self, message: str, whatsapp_id: str):
