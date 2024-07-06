@@ -1,6 +1,12 @@
-SELECT lead_heat_check FROM hr_applicant WHERE phone_sanitized = '18099999999';
+SELECT stage_id FROM hr_applicant WHERE phone_sanitized = '18296456177';
 
+SELECT * FROM hr_applicant_skill;
 
+SELECT * FROM hr_applicant_hr_skill_rel;
+
+SELECT * FROM hr_skill_level;
+
+SELECT * FROM hr_applicant_hr_applicant_category_rel;
 
 DROP TABLE chat_history;
 DROP TABLE va_stage_app;
@@ -52,10 +58,11 @@ CREATE INDEX idsp_campaign ON speech_log (campaign);
 
 
 
+TRUNCATE TABLE va_chat_history;
+TRUNCATE TABLE va_applicant_stage;
 
-
-SELECT * FROM chat_history ORDER by id DESC;
-SELECT * FROM va_stage_app ORDER by id DESC;
+SELECT * FROM va_chat_history ORDER by id DESC;
+SELECT * FROM va_applicant_stage ORDER by id DESC;
 
 SELECT cefr_score FROM hr_applicant WHERE phone_sanitized = '18296456177';
 SELECT * FROM hr_recruitment_stage;

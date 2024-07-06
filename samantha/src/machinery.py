@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import transitions
 from integration.whatsapp.whatsapp_client import WhatsAppClient
 from integration.speech.client import SpeechSuperClient
-from integration.odoo.schema import SpeechScore, GrammarScore, Stage
+from integration.odoo.schema import SpeechScore, GrammarScore, Stage, Applicant
 from integration.odoo.tables import (
-    odoo_message, ChatHistory, ApplicantStage, HrApplicant, HrRecruitmentStage, SpeechLog
+    odoo_message, ChatHistory, ApplicantStage, HrApplicant, HrRecruitmentStage, SpeechLog, HrApplicantSkill, HrApplicantSkillRel
 )
 from samantha.src.configs import (
     SessionLocal,
@@ -22,12 +22,12 @@ from samantha.src.configs import (
     cefr_grammar_tokenizer,
     id2label,
 )
-from samantha.src.static_messages import random_message, basic_form, assesment_form, voice_note, voice_note_received_yet, switch_to_text, assignment_reminder, friendly_reminder, voice_note_reminder_1, voice_note_reminder_2, refText_1, question_1
+from samantha.src.static_messages import random_message, basic_form, assesment_form, voice_note_1, open_question_1, voice_note_2, voice_note_received_yet, switch_to_text, assignment_reminder, friendly_reminder, voice_note_reminder_1, voice_note_reminder_2, assesment_form_text_1
 
 
 
 TOLERANCE = 3 # seconds of wait ...
-INACTIVITY = 60 # seconds of wait for user inactivity.
+INACTIVITY = 6000 # seconds of wait for user inactivity.
 SOURCE_USER = "human"
 SOURCE_LLM = "ai"
 DEFAULT_STATE = "draft"
@@ -37,7 +37,7 @@ device = get_device()
 
 
 class SchedulerMachine(transitions.Machine):
-    def __init__(self,  msisdn: str, campaign: str, wtsapp_client: WhatsAppClient) -> None:
+    def __init__(self,  msisdn: str, campaign: str, wtsapp_client: WhatsAppClient, flow_sended: bool = False) -> None:
         states = ["draft", "new", "recording_1", "recording_2", "evaluation", "appointment", "draft_appointment"]
         #TODO: meter deterctor de prompt-injection al principio
         #TODO: IMPORTANTE: debe estar en memoria para rapido acceso. ciclico, viejos se van borrando.
@@ -46,6 +46,7 @@ class SchedulerMachine(transitions.Machine):
         self.msisdn = msisdn
         self.campaign = campaign
         self.wtsapp_client = wtsapp_client
+        self.flow_sended = flow_sended
 
         m_state = self.data.get_state(msisdn, campaign)
         transitions.Machine.__init__(self, states=states, initial=m_state['state'])
@@ -102,46 +103,24 @@ class SchedulerMachine(transitions.Machine):
             predicted_class = torch.argmax(logits, dim=1).item()
         
         return id2label[predicted_class]
-    
-    
-    def grammar_probas_scores(self, text: str):
-        inputs = cefr_grammar_tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-        # Extract input IDs and attention mask from tokenization output
-        input_ids = inputs["input_ids"]
-        attention_mask = inputs["attention_mask"]
-        # Perform inference
-        with torch.no_grad():
-            logits = cefr_grammar_model(input_ids=input_ids, attention_mask=attention_mask).logits
-
-        # Apply softmax to get probabilities
-        probabilities = F.softmax(logits, dim=1)
-        # Convert probabilities to a list
-        probabilities_list = probabilities.squeeze().tolist()
-        probabilities_list = {cefr_grammar_model.config.id2label[i]: p for i, p in enumerate(probabilities_list)}
-        p_max = max(probabilities_list, key=lambda x: probabilities_list[x])
-        return probabilities_list, p_max
-
-    
-    def entry(self, text: str, utterance_type: str) -> str:
-        self.state = self.data.get_state(self.msisdn, self.campaign)['state']
-        response = self.router(text, utterance_type)
-        return response
-
-
-    def router(self, text: str, utterance_type: str) -> str: 
-        if self.state == "draft" and text == "I have completed the basic form.": # form completed
-            try:
-                odoo_message.dummy_applicant(self.msisdn) # work because its the #1 thread ? ...
-            except Exception as ex:
-                print(f"Problemas con odoo rpc en threas {ex}")
-            self.step_completed()
-            return random_message(basic_form)
         
-        if self.state == "new" and text.startswith("#2"): #assessment completed
-            text = text.replace("#2 ", '')
+
+    def entry(self, text: str, utterance_type: str) -> str:
+        flow_trigger = None
+        self.state = self.data.get_state(self.msisdn, self.campaign)['state']
+
+        #TODO how to identify when flow is sent????? 
+        if self.state == "draft" and self.flow_sended: # form completed
             self.step_completed()
-            self.validate_grammar(text)
-            return random_message(assesment_form)
+            flow_trigger = 'FLOW_ASSESSMENT'
+            return random_message(basic_form), flow_trigger
+        
+        if self.state == "new" and self.flow_sended: #assessment completed
+            self.step_completed()
+            refText = random_message(assesment_form_text_1)
+            self.data.set_reftext(refText, self.msisdn, self.campaign)
+            text = f"{random_message(assesment_form)}\n\n\"{refText}\""
+            return text, None
         
         if self.state == "draft_appointment":
             pass
@@ -150,28 +129,38 @@ class SchedulerMachine(transitions.Machine):
         if self.state == "draft":
             response = self.draft_module(text, self.chat_history, utterance_type)
             if len(self.chat_history) == 0:
-                welcome = """*Hello and welcome!* 🎉 We're excited to assist you with your recruitment journey. Whether you have questions about your application, need help scheduling an interview we're here to help. Let's get started """
+                welcome = """*Hello and welcome!* 🎉 Ready to kick off your exciting recruiting journey! I'll be with you every step of the way. Here's what we'll do:
+
+1. Fill in your basic information.
+2. Complete an assessment.
+3. Read a short text aloud.
+4. Answer an open question.
+
+Let's get started! """
                 response = list(response)
-                response[0] = welcome + response[0]
+                response[0] = welcome
+                flow_trigger = 'FLOW_BASIC'
         elif self.state == "new":
             response = self.new_module(text, self.chat_history, utterance_type)
         elif self.state == "recording_1":
             response = self.recording_module(text, self.chat_history, utterance_type, step=1)
-            response[0] = f"{response[0]}\n*{refText_1}*"
+            refText_1 = self.data.get_reftext(self.msisdn, self.campaign)
+            response[0] = f"{response[0]}\n\n*{refText_1}*"
         elif self.state == "recording_2":
             response = self.recording_module(text, self.chat_history, utterance_type, step=2)
         elif self.state == "evaluation":
             response = self.evaluation_module(text, self.chat_history, utterance_type)
 
-        if utterance_type == "continue_later":
+
+        if utterance_type == "continue_later": #TODO: if 'evaluation' this non have sense
             pick = "Could you please choose a date 📆 from the list below ⤵️ for us to continue our conversation? Thanks a lot!"
-            return f"{response[0]}\n{pick}"
+            return f"{response[0]}\n\n{pick}", None
         
-        if utterance_type == "stop_continue":
+        if utterance_type == "stop_continue": #TODO: if 'evaluation' this non have sense
             pick = "If you want, I can contact you at another time. Just let me know a date that works best for you from the options below. 📅"
-            return f"{response[0]}\n{pick}"
+            return f"{response[0]}\n\n{pick}", None
         
-        return response[0]
+        return response[0], flow_trigger
     
 
     def manage_audio(self, audio_id: str):
@@ -183,22 +172,29 @@ class SchedulerMachine(transitions.Machine):
             self.step_completed()
             status_code, wave_path = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign, step)
             #TODO add voice_note_1, voice_note_2
-            message = random_message(voice_note)
+            if step == 1:
+                vn = random_message(voice_note_1)
+                question_1 = random_message(open_question_1)
+                self.data.set_open_question(question_1, self.msisdn, self.campaign)
+                message = f"{vn}\n\n\"{question_1}\""
+            if step == 2:
+                message = random_message(voice_note_2)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
             #TODO: call method API here to evaluate audio.
             print(wave_path)
             speech = SpeechSuperClient()
+            refText = self.data.get_reftext(self.msisdn, self.campaign)
             if status_code == 200:
                 if step == 1: #scripted
                     scores = speech.request_scripted(
                         audio_name=wave_path,
                         coreType=SpeechSuperClient.PARAG_EVAL,
-                        refText=refText_1
+                        refText=refText
                     )
                     result = scores['result']
                     data = {
                         'speech_overall': result['overall'],
-                        'speech_refText': refText_1,
+                        'speech_refText': refText,
                         'speech_duration': result['duration'],
                         'speech_fluency': result['fluency'],
                         'speech_integrity': result['integrity'],
@@ -214,6 +210,7 @@ class SchedulerMachine(transitions.Machine):
                     scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio_path, response])
 
                 if step == 2: #UNSCRIPTED
+                    question_1 = self.data.get_open_question(self.msisdn, self.campaign)
                     scores = speech.request_spontaneous_unscripted(
                         audio_name=wave_path,
                         coreType=SpeechSuperClient.SPEACK_EVAL_PRO,
@@ -242,6 +239,8 @@ class SchedulerMachine(transitions.Machine):
                     scheduler.add_job(self.data.speech_log, 'date', run_date=None, args=[self.msisdn, self.campaign, audio_path, response])
             else:
                 print(F"******* ERROR {status_code} *********")
+            
+            return
 
         if self.state == "evaluation":
             message = random_message(voice_note_received_yet)
@@ -270,9 +269,6 @@ class SchedulerMachine(transitions.Machine):
 
         unreaded_messages_collected = " ".join([u['message'] for u in unreaded_messages])
         
-        if unreaded_messages_collected == "#1":
-            unreaded_messages_collected = "I have completed the basic form."
-        
         if len(unreaded_messages) > 1:
             readed, collected = True, True
             scheduler.add_job(self.data.add_chat_history_db, 'date', run_date=None, args=[self.msisdn, self.campaign, unreaded_messages_collected, SOURCE_USER, whatsapp_id, now, readed, collected])
@@ -280,10 +276,16 @@ class SchedulerMachine(transitions.Machine):
             self.data.add_chat_history(self.msisdn, self.campaign, unreaded_messages_collected, SOURCE_USER, whatsapp_id, now, readed=True, collected=True)
 
         utterance_type = self.infer_utterance_type(text=unreaded_messages_collected)
-        llm_response = self.entry(text=unreaded_messages_collected, utterance_type=utterance_type)
-        print(f"🤖 {llm_response}")
-        #TODO: send BACK to WhatsApp here !!
+        llm_response, flow_trigger = self.entry(text=unreaded_messages_collected, utterance_type=utterance_type)
         self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=llm_response)
+
+        if flow_trigger is not None and flow_trigger == 'FLOW_BASIC':
+            self.wtsapp_client.send_flow_basic(phone_number=self.msisdn, campaign=self.campaign)
+
+        if flow_trigger is not None and flow_trigger == 'FLOW_ASSESSMENT':
+            self.wtsapp_client.send_flow_assessment(phone_number=self.msisdn, campaign=self.campaign)
+
+
         readed, collected = True, True
         scheduler.add_job(self.data.add_chat_history_db, 'date', run_date=None, args=[self.msisdn, self.campaign, llm_response, SOURCE_LLM, whatsapp_id, now, readed, collected])
         self.data.add_chat_history(self.msisdn, self.campaign, llm_response, SOURCE_LLM, whatsapp_id, now, readed=True, collected=True)
@@ -367,10 +369,6 @@ class SchedulerMachine(transitions.Machine):
         self.data.set_state(self.msisdn, self.campaign, self.state, self.now_)
         scheduler.add_job(self.data.odoo_update_state, 'date', run_date=None, args=[self.msisdn, self.campaign, self.state])
 
-
-    def set_grammar_score_wrapper(self, score: dict) -> None:
-        self.data.set_grammar_score(score)
-
     
     def set_speech_unscripted_wrapper(self, data: dict) -> None:
         self.data.set_speech_unscripted_score(self.msisdn, data)
@@ -378,22 +376,6 @@ class SchedulerMachine(transitions.Machine):
 
     def set_speech_wrapper(self, data: dict) -> None:
         self.data.set_speech_score(self.msisdn, data)
-
-
-    def validate_grammar(self, text: str):
-        #TODO: evaluate grammar here!
-        proba, p_max =  self.grammar_probas_scores(text=text)
-        score = {
-            "msisdn": self.msisdn,
-            "a1_score": proba['A1'] * 100,
-            "a2_score": proba['A2'] * 100,
-            "b1_score": proba['B1'] * 100,
-            "b2_score": proba['B2'] * 100,
-            "c1_score": proba['C1'] * 100,
-            "c2_score": proba['C2'] * 100,
-            "user_input_text": text,
-        }
-        scheduler.add_job(self.set_grammar_score_wrapper, 'date', run_date=None, args=[score])
 
 
     @property
@@ -604,6 +586,32 @@ class DataManager():
         return {key.decode(): value.decode() for key, value in record.items()}
     
 
+    def set_reftext(self, refText: str, msisdn: str, campaign: str) -> None:
+        record = { "refText": refText }
+        record_id = f"{msisdn}:{campaign}"
+        record_hash_key = f"refText:{record_id}"
+        redis_conn.hset(record_hash_key, mapping=record)
+
+
+    def get_reftext(self, msisdn: str, campaign: str) -> str:
+        record_hash_key = f"refText:{msisdn}:{campaign}"
+        ref_text = redis_conn.hget(record_hash_key, "refText")
+        return ref_text.decode("utf-8") if ref_text else None
+    
+
+    def set_open_question(self, question: str, msisdn: str, campaign: str) -> None:
+        record = { "question": question }
+        record_id = f"{msisdn}:{campaign}"
+        record_hash_key = f"question:{record_id}"
+        redis_conn.hset(record_hash_key, mapping=record)
+
+
+    def get_open_question(self, msisdn: str, campaign: str) -> str:
+        record_hash_key = f"question:{msisdn}:{campaign}"
+        open_question = redis_conn.hget(record_hash_key, "question")
+        return open_question.decode("utf-8") if open_question else None
+    
+
     def odoo_update_state(self, msisdn: str, campaign: str, state: str):
         if state in ["new", "recording_1", "recording_2", "evaluation"]:
             self.applicant_stage(state, msisdn, campaign)
@@ -670,7 +678,8 @@ class DataManager():
         """
         states = {
             'new': 1,
-            'recording': 4,
+            'recording_1': 3,
+            'recording_2': 4,
             'evaluation': 5,
         }
         db = SessionLocal()
@@ -765,17 +774,96 @@ class DataManager():
         finally:
             db.close()
 
+    
+    def applicant_register(self, appl: HrApplicant, english_level: int) -> None:
+        if isinstance(appl, dict): appl = HrApplicant(**appl)
+        skill = HrApplicantSkill()
+        rel = HrApplicantSkillRel()
+        db = SessionLocal()
+        try:
+            db.add(appl)
+            db.flush()
+            skill.applicant_id = appl.id
+            skill.skill_level_id = english_level
+            db.add(skill)
+            rel.hr_applicant_id = appl.id
+            db.add(rel)
+            db.commit()
+        except Exception as ex:
+            print(ex)
+        finally:
+            db.close()
+
+
+class ScoreWrapper():
+    def __init__(self, msisdn: str, campaign: str) -> None:
+        self.msisdn = msisdn
+        self.campaign = campaign
+        self.data = DataManager()
+
+    def grammar_probas_scores_(self, text: str):
+        inputs = cefr_grammar_tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+        # Extract input IDs and attention mask from tokenization output
+        input_ids = inputs["input_ids"]
+        attention_mask = inputs["attention_mask"]
+        # Perform inference
+        with torch.no_grad():
+            logits = cefr_grammar_model(input_ids=input_ids, attention_mask=attention_mask).logits
+
+        # Apply softmax to get probabilities
+        probabilities = F.softmax(logits, dim=1)
+        # Convert probabilities to a list
+        probabilities_list = probabilities.squeeze().tolist()
+        probabilities_list = {cefr_grammar_model.config.id2label[i]: p for i, p in enumerate(probabilities_list)}
+        p_max = max(probabilities_list, key=lambda x: probabilities_list[x])
+        return probabilities_list, p_max
+
+    def validate_grammar(self, text: str):
+        #TODO: evaluate grammar here!
+        proba, p_max =  self.grammar_probas_scores_(text=text)
+        score = {
+            "msisdn": self.msisdn,
+            "a1_score": proba['A1'] * 100,
+            "a2_score": proba['A2'] * 100,
+            "b1_score": proba['B1'] * 100,
+            "b2_score": proba['B2'] * 100,
+            "c1_score": proba['C1'] * 100,
+            "c2_score": proba['C2'] * 100,
+            "user_input_text": text,
+        }
+        self.data.set_grammar_score(score)
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
-    import uuid
-    wtsapp_client = WhatsAppClient()
-    machine = SchedulerMachine(msisdn="18296456177", campaign="BOTPROS",  wtsapp_client=wtsapp_client)
-    # import os
-    # os.system('clear')
-    while True:
-        text = input("🥸 ")
-        if text.lower() == "quit": break
-        r = machine(text, str(uuid.uuid4()))
+    data = DataManager()
+    appl = HrApplicant()
+    appl.partner_phone = "18295669077"
+    appl.name = "Sales Agent"
+    appl.partner_name = "Adda Borvashok"
+    english_level = 3
 
-    redis_conn.flushdb()
+    data.applicant_register(appl, english_level=english_level)
+
+   
+
+
+
+
+
+    # import uuid
+    # wtsapp_client = WhatsAppClient()
+    # machine = SchedulerMachine(msisdn="18296456177", campaign="BOTPROS",  wtsapp_client=wtsapp_client)
+    # # import os
+    # # os.system('clear')
+    # while True:
+    #     text = input("🥸 ")
+    #     if text.lower() == "quit": break
+    #     r = machine(text, str(uuid.uuid4()))
+
+    # redis_conn.flushdb()

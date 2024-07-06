@@ -42,3 +42,6 @@ samantha/notebook/1_free_speech.html
 /samantha/livekit_lab/
 samantha/notebook/spontaneous_speech_corr.xlsx
 spontaneous_speech_corr.png
+/api/.certs/
+/flow_assessment_test.sh
+/flow_basic_test.sh

@@ -15,30 +15,58 @@ basic_form = [
 ]
 
 assesment_form = [
-    "Hey, many thanks! You've made great progress—well done! 🚀 The next step is to send me a voice note 🗣️ of up to 2 minutes for evaluation.",
-    "Thank you so much! You've advanced significantly—congratulations! 🚀 The final task is to submit a voice note 🗣️ that's no longer than 2 minutes for review.",
-    "Appreciate it! You've taken a big step forward—kudos! 🚀 Now, just send me a voice note 🗣️ under 2 minutes for evaluation.",
-    "Thanks a lot! You've made an important leap—awesome job! 🚀 The next part is to send a voice note 🗣️ of no more than 2 minutes for assessment.",
-    "Thank you very much! You've moved ahead impressively—great job! 🚀 The next step is to record and send a voice note 🗣️ under 2 minutes for evaluation.",
-    "Hey, thanks a ton! You've achieved a major milestone—congrats! 🚀 The next thing is to send over a voice note 🗣️ up to 2 minutes long for evaluation purposes.",
-    "Much appreciated! You've made remarkable progress—congratulations! 🚀 Please send a voice note 🗣️ lasting no longer than 2 minutes for the final review.",
-    "Thanks a bunch! You've taken a crucial step forward—nice work! 🚀 The next action is to submit a voice note 🗣️ of 2 minutes or less for evaluation.",
-    "Thank you immensely! You've made significant strides—well done! 🚀 The requirement is to send me a voice note 🗣️ that’s no longer than 2 minutes for assessment.",
-    "Hey, big thanks! You've moved forward significantly—excellent! 🚀 The next step is to record a voice note 🗣️ of up to 2 minutes for evaluation purposes."
+    "Hey, many thanks! You've made great progress—well done! 🚀 Next, read the text aloud and send it as a voice note:",
+    "Thank you so much! You've advanced significantly—congratulations! 🚀 Please read the text aloud and submit it as a voice note:",
+    "Appreciate it! You've taken a big step forward—kudos! 🚀 In the next step, read the text aloud and send it:",
+    "Thanks a lot! You've made an important leap—awesome job! 🚀 Read the text aloud and send it as a voice note, please:",
+    "Thank you very much! You've moved ahead impressively—great job! 🚀 Next step: read the text aloud and send it as voice note:",
+    "Hey, thanks a ton! You've achieved a major milestone—congrats! 🚀 Read the following text aloud and send it as a voice message:",
+    "Much appreciated! You've made remarkable progress—congratulations! 🚀 For the next step, read the text aloud and send it:",
+    "Thanks a bunch! You've taken a crucial step forward—nice work! 🚀 Please read aloud the text and send it as a voice note:",
+    "Thank you immensely! You've made significant strides—well done! 🚀 Next, read the following text aloud and send a voice note:",
+    "Hey, big thanks! You've moved forward significantly—excellent! 🚀 In the next step, read aloud and send the text as voice note:"
+]
+
+assesment_form_text_1 = [
+    "The resurgence of vinyl records has sparked a debate about the nostalgic appeal of analogue music versus the convenience of digital streaming. While some argue that vinyl's tactile experience enhances musical appreciation, others contend that streaming services provide unparalleled accessibility to diverse genres and artists.",
+    "As millennials navigate the gig economy,they must confront the blurred lines between personal and professional brands. Social media influencers, in particular, face the daunting task of maintaining authenticity while monetizing their online presence. Can they escape the stigma of 'selling out' and preserve their artistic integrity?",
+    "According to recent studies, millennials prioritize experiential travel, seeking cultural immersion and Instagram-worthy moments over material possessions. This shift in consumer behavior has significant implications for the hospitality industry, as hotels and resorts adapt to cater to the preferences of this tech-savvy demographic.",
+    "The concept of micro-influencers has revolutionized the digital marketing landscape. With their niche audiences and high engagement rates, they're becoming increasingly attractive to brands seeking authenticity and precision targeting. As social media algorithms continue to evolve, it's crucial for marketers to adapt and harness the power of these online personalities.",
 ]
 
 
-voice_note = [
-    "We got your voice note! ✅ Thanks so much! You've made excellent progress—great job! 🚀 The process is now complete.",
-    "Your voice note has arrived! ✅ Many thanks! You've done fantastic work—congratulations! 🚀 We've successfully finished the process.",
-    "Voice note received! ✅ Thank you very much! You've achieved great progress—well done! 🚀 The process is now finalized.",
-    "We've got your voice note! ✅ Thanks a ton! You've advanced impressively—awesome job! 🚀 The process is now complete.",
-    "Your voice note has been successfully received! ✅ Thanks a bunch! You've made amazing progress—congrats! 🚀 The process is now finished.",
-    "Voice note received successfully! ✅ Thank you so much! You've reached a significant milestone—brilliant work! 🚀 The process is complete.",
-    "We've received your voice note! ✅ Many thanks! You've progressed wonderfully—great job! 🚀 The process is now concluded.",
-    "Your voice note is in! ✅ Thanks a lot! You've moved forward tremendously—excellent work! 🚀 The process is now done.",
-    "Voice note has been received! ✅ Big thanks! You've accomplished great strides—well done! 🚀 We've completed the process successfully.",
-    "Got your voice note! ✅ Thank you immensely! You've made substantial progress—fantastic job! 🚀 The process is now wrapped up."
+voice_note_1 = [
+    "We got your voice note! ✅ Thanks so much! You've made excellent progress—great job! 🚀 Last task: record a voice note (over 1 minute) responding to this open-ended question:",
+    "Your voice note has arrived! ✅ Many thanks! You've done fantastic work—congratulations! 🚀 Final requirement: submit a voice note (minimum 1 minute) addressing the following query:",
+    "Voice note received! ✅ Thank you very much! You've achieved great progress—well done! 🚀 Complete the process by sending a voice note (at least 1 minute) answering the following:",
+    "We've got your voice note! ✅ Thanks a ton! You've advanced impressively—awesome job! 🚀 The last step is to record and send a voice note (1+ minute) on the following topic:",
+    "Your voice note has been successfully received! ✅ Thanks a bunch! You've made amazing progress—congrats! 🚀 To finish, please provide a voice note (exceeding 1 minute) responding to the following question:",
+    "Voice note received successfully! ✅ Thank you so much! You've reached a significant milestone—brilliant work! 🚀 The final hurdle: recording a voice note (over 1 minute) to address the following inquiry:",
+    "We've received your voice note! ✅ Many thanks! You've progressed wonderfully—great job! 🚀 Complete your awesome journey by submitting a voice note (longer than 1 minute) on the following theme:",
+    "Your voice note is in! ✅ Thanks a lot! You've moved forward tremendously—excellent work! 🚀 The concluding, send a voice note (minimum 1 minute) exploring the following open-ended question:",
+    "Voice note has been received! ✅ Big thanks! You've accomplished great strides—well done! 🚀 To conclude, please record and submit a voice note (at least 1 minute) on the following subject:",
+    "Got your voice note! ✅ Thank you immensely! You've made substantial progress—fantastic job! 🚀 The last task involves recording a voice note (1+ minute) that thoughtfully addresses the following prompt:"
+]
+
+open_question_1 = [
+    "If you could create a dream community or city from scratch, what would it look like, and what features would you include to make it the perfect place to live, work, and play?",
+    "If you could switch lives with someone for a day, who would it be and why? What would you do during that day, and what do you think you would learn from the experience?",
+    "What do you think are the most important qualities and skills that a person should have to be successful in their career, and how do you think you can develop those qualities and skills?",
+    "Imagine you've been given a magical power to change one thing about your daily life for a year. What would it be and how would you use it?",
+    "If you could plan the perfect weekend getaway with unlimited resources, where would you go and what would you do? What would make this trip so special and unforgettable?"
+]
+
+voice_note_2 = [
+  "🎉 Your voice note has landed! Well done on completing all the steps, thanks! 😊",
+  "👍 Your voice note arrived safely! Awesome job on finishing all tasks, thank you! 🙏",
+  "📝 Your voice note received! Excellent work on completing every step, thanks a lot! 👏",
+  "💬 Your voice note has dropped! Fantastic job on finishing all steps, appreciate it! 😊",
+  "🎯 Your voice note is here! Great work on checking all the boxes, thank you! 👍",
+  "📱 Your voice note arrived! You aced it by completing all steps, thanks so much! 🙏",
+  "👂 Your voice note landed safely! Superb job on completing all tasks, thank you! 😊",
+  "📝 Your voice note has been received! Outstanding work on finishing all steps, kudos! 👏",
+  "🎉 Your voice note is in! Brilliant job on completing every step, thanks a ton! 😊",
+  "💬 Your voice note has been delivered! Exceptional work on finishing all tasks, thanks! 🙏"
 ]
 
 voice_note_received_yet = [
@@ -118,10 +146,6 @@ voice_note_reminder_2 = [
 ]
 
 
-refText_1 = "In my previous role at a call center, I managed customer inquiries and resolved issues efficiently. I utilized active listening and problem-solving skills to enhance customer satisfaction. My ability to handle high-stress situations and maintain a professional demeanor contributed to a positive customer experience. This role honed my communication and multitasking abilities."
-
-
-question_1 = "Describe a film character played by an actor/actress whom you admire."
 
 def random_message(m_list: list):
     l = len(m_list) - 1

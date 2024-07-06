@@ -20,9 +20,9 @@ def subscribe(request: Request):
     return "Authentication failed. Invalid Token."
 
 
-def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text"):
+def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: str = None, message_type: str = "text", flow: bool = False):
     wtsapp_client = WhatsAppClient()
-    machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client)
+    machine = SchedulerMachine(msisdn=msisdn, campaign=campaign,  wtsapp_client=wtsapp_client, flow_sended=flow)
     if message_type == "audio":
         machine.manage_audio(audio_id)
     else:
@@ -43,7 +43,8 @@ async def process_notifications(request: Request, background_tasks: BackgroundTa
                 wamid = response["id"]
                 campaign = "GET_FROM_SENDER"
                 text = response['body']
-                background_tasks.add_task(manage_message, msisdn=msisdn, campaign=campaign, text=text, wamid=wamid)
+                flow = response['flow']
+                background_tasks.add_task(manage_message, msisdn=msisdn, campaign=campaign, text=text, wamid=wamid, flow=flow)
         if response["statusCode"] == 200 and response["type"] == "audio":
             msisdn = response["from_no"]
             wamid = response["id"]

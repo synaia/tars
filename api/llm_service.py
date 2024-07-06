@@ -1,6 +1,6 @@
 import os
 import datetime
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from dotenv import dotenv_values
@@ -14,6 +14,7 @@ secret = dotenv_values('.secret')
 
 
 class SubscribeRequest(BaseModel):
+    msisdn: Optional[str] = None
     text: str
     chat_history: List[str]
     utterance_type: str

@@ -10,6 +10,7 @@ from samantha.src.machinery import DataManager, redis_conn
 
 import webhook as webhook
 import llm_service as llm_service
+import flow as flow
 
 import uvicorn
 
@@ -54,6 +55,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(webhook.router)
 app.include_router(llm_service.router)
+app.include_router(flow.router)
 
 @app.get("/")
 def I_am_alive():
