@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="synaia_hr_applicant.GaugeFieldTemplate">
-        <div>
-            <canvas  t-ref="gaugeCanvas" width="200" height="145"></canvas>
+
+    <t t-name="web.CustomGaugeField">
+        <div class="oe_gauge position-relative">
+            <canvas t-ref="canvas"/>
+            <span class="o_gauge_value position-absolute start-0 end-0 bottom-0 text-center" style="font-size: 26px; margin-bottom: 10px; font-weight: 400" t-esc="props.record.data[props.label_field]"/>
         </div>
     </t>
+
 </templates>

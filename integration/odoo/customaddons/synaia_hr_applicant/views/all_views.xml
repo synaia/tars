@@ -4,6 +4,21 @@
         <field name="model">hr.applicant</field>
         <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
         <field name="arch" type="xml">
+
+            <xpath expr="//div[hasclass('oe_title')]" position="replace">
+                <div class="row justify-content-between position-relative w-100 m-0 mb-2">
+                    <div class="oe_title mw-75 ps-0 pe-2">
+                        <h1 class="d-flex flex-row align-items-center">
+                            <field name="partner_name" placeholder="Applicant's Name"
+                                required="True" style="font-size: min(4vw, 2.6rem);"/>
+                        </h1>
+                    </div>
+                    <div class="o_employee_avatar m-0 p-0" style="width: fit-content;">
+                        <field name="photo_applicant" widget="image" class="oe_avatar" options="{'preview_image': 'photo_applicant', 'size': [128, 128]}"/>
+                    </div>
+                </div>
+            </xpath>
+
             <xpath expr="//page[@name='application_summary']" position="before">
                 <!-- <notebook> -->
                 <page string="SPONTANEOUS SPEECH SCORE">
@@ -85,42 +100,49 @@
                 <!-- </notebook> -->
             </xpath>
 
-            <xpath expr="//field[@name='partner_name']" position="replace">
-                <div style="width: 100%;">
-                    <!-- <label for="partner_name" class="oe_edit_only"/> -->
-                    <field name="partner_name" placeholder="e.g. John Doe" nolabel="1"/>
+            <xpath expr="//field[@name='interviewer_ids']" position="before">
+                <!-- <field name="lead_temperature" widget="custom_gauge" 
+                        options="{'lead_heat_check_label': 'lead_heat_check' }"
+                        nolabel="1"
+                        colspan="2"
+                /> -->
+                <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))" colspan="2">
+                    <field name="lead_temperature" widget="custom_gauge" 
+                        options="{'max_field': 'lead_max_temperature', 'label_field': 'lead_heat_check', 'style': 'width:210px; height: 200px;'}"
+                        nolabel="1"
+                    />
+                    <field name="speech_unscripted_overall_score" widget="custom_progress_bar" 
+                        options="{'maxValue': 9, 'backgroundColor': '#2789b3'}"
+                        style="width:180px; height: 180px; margin-top: -12px;"
+                        nolabel="1"
+                    />
+                     <field name="speech_overall" widget="custom_progress_bar" 
+                        options="{'maxValue': 100, 'backgroundColor': '#239e6b'}"
+                        style="width:180px; height: 180px; margin-top: -12px;"
+                        nolabel="1"
+                    />
+                    <field name="cefr_score" widget="letter_chart"
+                        options="{'maxValue': 100, 'backgroundColor': '#9a45c4', 'score': 'grammar_score'}"
+                        style="width:180px; height: 180px; margin-top: -12px;"
+                        nolabel="1"
+                    />
+                    <field name="lead_heat_check" invisible="1" />
+                    <field name="grammar_score" invisible="1" />
                 </div>
             </xpath>
-            <xpath expr="//field[@name='kanban_state']" position="after">
-                <field name="photo_applicant" widget="image" class="oe_avatar" options="{'preview_image': 'photo_applicant', 'size': [128, 128]}"/>
-            </xpath>
-            <xpath expr="//field[@name='kanban_state']" position="attributes">
-                <attribute name="style">visibility: hidden;</attribute>
-            </xpath>
 
-            <xpath expr="//field[@name='interviewer_ids']" position="before">
-                <field name="lead_temperature" widget="custom_gauge" 
-                        options="{'lead_heat_check_label': 'lead_heat_check' }"
-                />
-                <field name="lead_heat_check" invisible="1" />
-            </xpath>
-
-            <xpath expr="//field[@name='name']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
             <xpath expr="//field[@name='medium_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+
             <xpath expr="//field[@name='email_cc']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             
-            <!-- <xpath expr="//field[@name='user_id']" position="attributes">
-                <attribute name="string">Hiring Manager</attribute>
-            </xpath> -->
             <xpath expr="//field[@name='user_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+
             <xpath expr="//field[@name='type_id']" position="after"> 
                 <field name="user_id" string="Hiring Manager" />
             </xpath>
@@ -132,11 +154,11 @@
             <xpath expr="//field[@name='source_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+
             <xpath expr="//field[@name='user_id']" position="after"> 
                 <field name="source_id" />
             </xpath>
-           
-            
+
         </field>
     </record>
 </odoo>

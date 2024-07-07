@@ -10,8 +10,13 @@
     ],
     'assets': {
         'web.assets_backend': [
+            '/web/static/lib/Chart/Chart.js',
             '/synaia_hr_applicant/static/src/js/custom_gauge.js',
             '/synaia_hr_applicant/static/src/xml/custom_gauge.xml',
+            '/synaia_hr_applicant/static/src/js/custom_progress.js',
+            '/synaia_hr_applicant/static/src/xml/custom_progress.xml',
+            '/synaia_hr_applicant/static/src/js/custom_letter_chart.js',
+            '/synaia_hr_applicant/static/src/xml/custom_letter_chart.xml',
         ],
     },
     'icon': '/synaia_hr_applicant/static/description/icon.png',

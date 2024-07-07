@@ -26,6 +26,8 @@ class HrApplicant(models.Model):
     b2_score = fields.Float(string='B2', help="B2 score of this applicant", default=0.000, digits=(6, 3))
     c1_score = fields.Float(string='C1', help="C1 score of this applicant", default=0.000, digits=(6, 3))
     c2_score = fields.Float(string='C2', help="C2 score of this applicant", default=0.000, digits=(6, 3))
+    cefr_score = fields.Char(string="Grammar Score", compute="_compute_cefr_score")
+    grammar_score = fields.Float(string='G S', help="", default=0.000, digits=(6, 3))
     user_input_text = fields.Text(string="User input text")
 
 
@@ -46,7 +48,7 @@ class HrApplicant(models.Model):
     speech_unscripted_audio_path = fields.Char(string='Audio path', size=300)
 
     #Scripted Score
-    speech_overall = fields.Float(string="Overall score", default=0.0)
+    speech_overall = fields.Float(string="Scripted score", default=0.0)
     speech_refText = fields.Text(string="Text readed by applicant")
     speech_duration = fields.Float(string="Audio/voice note duration", default=0.0)
     speech_fluency = fields.Float(string="Fluency score", default=0.0)
@@ -82,7 +84,16 @@ class HrApplicant(models.Model):
                 WHERE a.id = %s
             """, (record.id,))
             result = self.env.cr.fetchone()
-            record.lead_heat_check = result[0] if result else ''
+            if result[0]:
+                if result[0] == "hot":
+                    r = "hot 🔥"
+                if result[0] == "warm":
+                    r = "warm 😎"
+                if result[0] == "cold":
+                    r = "cold 🥶"
+                record.lead_heat_check = r
+            else:
+                record.lead_heat_check = ''
 
     def _compute_lead_temperature(self):
         for record in self:
@@ -95,6 +106,27 @@ class HrApplicant(models.Model):
             """, (record.id,))
             result = self.env.cr.fetchone()
             record.lead_temperature = result[0] if result else 0
+
+    def _compute_cefr_score(self):
+        for record in self:
+            scores = [
+                {"A1": record.a1_score}, 
+                {"A2": record.a2_score},
+                {"B1": record.b1_score},
+                {"B2": record.b2_score},
+                {"C1": record.c1_score},
+                {"C2": record.c2_score}
+            ]
+            try:
+                max_score_dict = max(scores, key=lambda x: list(x.values())[0])
+                print(scores)
+            except Exception as ex:
+                print(ex)
+            max_score_string = list(max_score_dict.keys())[0]
+            grammar_score_ = list(max_score_dict.values())[0]
+            record.cefr_score = max_score_string
+            record.grammar_score = grammar_score_
+
 
 
     def init(self):
