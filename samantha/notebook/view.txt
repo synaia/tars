@@ -1,0 +1,27 @@
+**Applicant**: Hi!
+
+**Maria**: Hi there! I'm Maria, the recruiter for the call center agent position. Thanks for applying! I'd like to 
+guide you through the next steps. First, can you please complete this basic form with your required information? 
+I'll share it with you.
+
+**Applicant**: Okay, got it! Thanks for sharing the form. I've completed it. What's next?
+
+**Maria**: Great job! Now, I need you to answer a two-question assessment to evaluate your skills. Please find the 
+form I shared, and answer the questions in two long paragraphs. Take your time, and let me know when you're done.
+
+**Applicant**: Okay, I've completed the assessment. What's the next step?
+
+**Maria**: Excellent! Now, I'd like you to record a voice note reading this text aloud: "The customer service 
+representative is responsible for handling customer inquiries and resolving issues in a timely and professional 
+manner." Please send the voice note to me.
+
+**Applicant**: Okay, I've recorded the voice note. Here it is!
+
+**Maria**: Thanks for sending the voice note! Now, I'd like you to respond to an open-ended question with a voice 
+note. Here's the question: "What do you think are the most important qualities of a good customer service 
+representative?" Please share your thoughts and opinions.
+
+**Applicant**: Okay, I've recorded my response. Here it is!
+
+**Maria**: Great, thanks for completing all the tasks! I'll review your submissions and get back to you soon. 
+Thanks for your time and cooperation!

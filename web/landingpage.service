@@ -1,0 +1,13 @@
+# /etc/systemd/system/landingpage.service
+[Unit]
+Description=Synaia Landing
+After=network.target
+
+[Service]
+Type=simple
+User=wilton
+ExecStart=/home/wilton/web/run_web.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

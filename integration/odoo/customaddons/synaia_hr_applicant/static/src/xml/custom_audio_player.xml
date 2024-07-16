@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web.CustomAudioPlayer">
+        <div style="display: grid; grid-template-columns: 110px auto;">
+            <button t-ref="audio_play"  string="Play" name="action_play" 
+                class="o-mail-Chatter-sendMessage btn text-nowrap me-1 btn-primary my-2" 
+                style="height: 50px; width:100px;"
+            >Play</button>
+            <div class="position-relative" t-ref="audio_container"  />
+        </div>
+    </t>
+
+</templates>
