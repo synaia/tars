@@ -1,6 +1,6 @@
 
 import dspy
-from dsp.templates import passages2text
+from dsp.adapters import passages2text
 from samantha.src.machinery import DataManager
 from .configs import retriever_model
 

@@ -1,4 +1,11 @@
-SELECT stage_id FROM hr_applicant WHERE phone_sanitized = '18296456177';
+SELECT id, dummy_date, heat_check_id, partner_name, partner_phone, lead_last_update, lead_last_client_update
+	FROM hr_applicant;
+
+SELECT * FROM hr_applicant WHERE phone_sanitized = '34692403811';
+
+SELECT NOW(), NOW()::timestamp;
+SELECT * FROM hr_heat_check;
+
 
 SELECT * FROM hr_applicant_skill;
 
@@ -61,8 +68,13 @@ CREATE INDEX idsp_campaign ON speech_log (campaign);
 TRUNCATE TABLE va_chat_history;
 TRUNCATE TABLE va_applicant_stage;
 
-SELECT * FROM va_chat_history ORDER by id DESC;
+SELECT MSISDN FROM va_chat_history ORDER by id DESC;
 SELECT * FROM va_applicant_stage ORDER by id DESC;
+
+DELETE FROM va_chat_history WHERE msisdn = '18496576757';
+DELETE FROM va_applicant_stage WHERE msisdn = '18496576757';
+
+
 
 SELECT cefr_score FROM hr_applicant WHERE phone_sanitized = '18296456177';
 SELECT * FROM hr_recruitment_stage;
@@ -143,8 +155,8 @@ ORDER by id desc;
 
 
 
-UPDATE hr_applicant SET lead_last_update = NOW() - interval '9' day WHERE phone_sanitized = '18099999999';
-UPDATE hr_applicant SET lead_last_client_update = NOW() - interval '1' day WHERE phone_sanitized = '18099999999';
+UPDATE hr_applicant SET lead_last_update = NOW() - interval '5' day WHERE phone_sanitized = '18496576757';
+UPDATE hr_applicant SET lead_last_client_update = NOW() - interval '5' day WHERE phone_sanitized = '18496576757';
 UPDATE hr_applicant SET stage_id = 4 WHERE id = 20; -- 4 == "Evaluation"
 
 

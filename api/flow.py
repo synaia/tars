@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, BackgroundTasks, HTTPException, status, Response
+from fastapi import APIRouter, Request, Response, BackgroundTasks, HTTPException, status, Response
 from fastapi.encoders import jsonable_encoder
 
 import json
@@ -25,7 +25,8 @@ with open("api/.certs/private.pem", "rt") as file:
 
     
 @router.get("/", status_code=200)
-async def entrypoint_(request: Request):
+async def entrypoint_(request: Request, response: Response):
+    # response.headers["ngrok-skip-browser-warning"] = "1"
     try:
         data = await request.json()
         print(data)
@@ -48,7 +49,8 @@ def register_db(partner_phone: str, partner_name: str, english_level: int) -> No
 
 
 @router.post("/register", status_code=200)
-async def register_(request: Request, background_tasks: BackgroundTasks):
+async def register_(request: Request, response: Response, background_tasks: BackgroundTasks):
+    # response.headers["ngrok-skip-browser-warning"] = "1"
     try:
         data = await request.json()
 
@@ -102,7 +104,8 @@ def validate_grammar(text: str, msisdn: str, campaign: str):
         print(ex)
 
 @router.post("/assessment", status_code=200)
-async def assessment_(request: Request, background_tasks: BackgroundTasks):
+async def assessment_(request: Request, response: Response, background_tasks: BackgroundTasks):
+    # response.headers["ngrok-skip-browser-warning"] = "1"
     try:
         data = await request.json()
 
@@ -206,7 +209,8 @@ def ping_(version: str, aes_key: str , iv: str) -> Response:
 
 
 @router.get("/dummy", status_code=200)
-async def dummy_(request: Request):
+async def dummy_(request: Request, response: Response):
+    response.headers["ngrok-skip-browser-warning"] = "1"
     try:
         private_key = load_pem_private_key(PRIVATE_KEY.encode('utf-8'), password=PASSPHRASE.encode('utf-8'))
         print(private_key)

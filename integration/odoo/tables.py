@@ -101,7 +101,6 @@ class HrApplicant(Base):
     lead_last_update = Column(DateTime, default=now_())
     lead_last_client_update = Column(DateTime, default=now_())
     lead_max_temperature = Column(Double, default=0)
-    lead_heat_check = Column(String)
     # UNScripted score
     speech_open_question = Column(String)
     speech_unscripted_overall_score = Column(Double, default=0)

@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 from enum import Enum
+from pathlib import Path
 import requests
 from typing import Any, List, Dict
 from datetime import datetime, timedelta
@@ -119,7 +120,7 @@ class SchedulerMachine(transitions.Machine):
             self.step_completed()
             refText = random_message(assesment_form_text_1)
             self.data.set_reftext(refText, self.msisdn, self.campaign)
-            text = f"{random_message(assesment_form)}\n\n\"{refText}\""
+            text = f"{random_message(assesment_form)}\n\n> ❝{refText}❞\n\n\n_"
             return text, None
         
         if self.state == "draft_appointment":
@@ -129,14 +130,17 @@ class SchedulerMachine(transitions.Machine):
         if self.state == "draft":
             response = self.draft_module(text, self.chat_history, utterance_type)
             if len(self.chat_history) == 0:
-                welcome = """*Hello and welcome!* 🎉 Ready to kick off your exciting recruiting journey! I'll be with you every step of the way. Here's what we'll do:
+#                 welcome = """*Hello and welcome!* 🎉 Ready to kick off your new job!
+# Here's what we'll do:
 
-1. Fill in your basic information.
-2. Complete an assessment.
-3. Read a short text aloud.
-4. Answer an open question.
+# 1. Fill in your basic information.
+# 2. Complete an assessment.
+# 3. Read a short text aloud.
+# 4. Answer an open question.
 
-Let's get started! """
+# Let's get started! """
+                welcome = """🎊 *Welcome* 🥳 \n
+The purpose here is to get to know you better. I'll guide you through a quick assessment to check your grammar and English fluency. It only takes about 5 minutes to complete! Instead of spending weeks going to an office, this assessment happens right here, right now.\n\nReady to start?"""
                 response = list(response)
                 response[0] = welcome
                 flow_trigger = 'FLOW_BASIC'
@@ -170,7 +174,7 @@ Let's get started! """
             if self.state == "recording_2":
                 step = 2
             self.step_completed()
-            status_code, wave_path = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign, step)
+            
             #TODO add voice_note_1, voice_note_2
             if step == 1:
                 vn = random_message(voice_note_1)
@@ -180,7 +184,9 @@ Let's get started! """
             if step == 2:
                 message = random_message(voice_note_2)
             self.wtsapp_client.send_text_message(phone_number=self.msisdn, message=message)
-            #TODO: call method API here to evaluate audio.
+
+
+            status_code, wave_path = self.wtsapp_client.process_audio(audio_id, self.msisdn, self.campaign, step)
             print(wave_path)
             speech = SpeechSuperClient()
             refText = self.data.get_reftext(self.msisdn, self.campaign)
@@ -201,7 +207,7 @@ Let's get started! """
                         'speech_pronunciation': result['pronunciation'],
                         'speech_rhythm': result['rhythm'],
                         'speech_speed': result['speed'],
-                        'speech_audio_path': wave_path,
+                        'speech_audio_path': "https://web.synaia.io/" + str(Path(wave_path).name),
                         'speech_warning': result.get('warning', None),
                     }
                     scheduler.add_job(self.set_speech_wrapper, 'date', run_date=None, args=[data])
@@ -229,7 +235,7 @@ Let's get started! """
                         'speech_unscripted_pronunciation': result['pronunciation'],
                         'speech_unscripted_relevance': result['relevance'],
                         'speech_unscripted_speed': result['speed'],
-                        'speech_unscripted_audio_path': wave_path,
+                        'speech_unscripted_audio_path': "https://web.synaia.io/" + str(Path(wave_path).name),
                         'speech_unscripted_transcription': result['transcription'],
                         'speech_unscripted_warning': result.get('warning', None),
                     }
@@ -548,7 +554,6 @@ class DataManager():
         db.commit()
         db.refresh(chat_record)
         db.close()
-
 
     def get_state(self, msisdn: str, campaign: str) -> dict:
         state = self.get_mem_state(msisdn, campaign)

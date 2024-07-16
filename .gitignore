@@ -45,3 +45,8 @@ spontaneous_speech_corr.png
 /api/.certs/
 /flow_assessment_test.sh
 /flow_basic_test.sh
+/web/astroship/
+/web/landingpage/
+/web/__pycache__/
+/web/astroship/
+/sync_web.sh

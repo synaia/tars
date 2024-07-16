@@ -17,7 +17,12 @@
             '/synaia_hr_applicant/static/src/xml/custom_progress.xml',
             '/synaia_hr_applicant/static/src/js/custom_letter_chart.js',
             '/synaia_hr_applicant/static/src/xml/custom_letter_chart.xml',
+            '/synaia_hr_applicant/static/src/js/custom_audio_player.js',
+            '/synaia_hr_applicant/static/src/xml/custom_audio_player.xml',
         ],
+         "web.wavesurfer" : [
+            '/synaia_hr_applicant/static/src/js/wavesurfer.min.js',
+        ]
     },
     'icon': '/synaia_hr_applicant/static/description/icon.png',
     'category': 'Human Resources',

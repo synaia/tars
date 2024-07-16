@@ -18,6 +18,7 @@ class SubscribeRequest(BaseModel):
     text: str
     chat_history: List[str]
     utterance_type: str
+    step: Optional[int] = None
 
 
 @router.post("/draft", status_code=200)

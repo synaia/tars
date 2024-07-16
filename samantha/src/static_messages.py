@@ -2,29 +2,29 @@
 import random
 
 basic_form = [
-    "Thanks for filling out the basic form 🙌🏼 Now, please proceed to the assessment below ⤵️",
-    "We appreciate you completing the basic form 🙌🏼 Your next step is to fill in the assessment below ⤵️",
-    "Grateful for your completion of the basic form 🙌🏼 The next task is to tackle the assessment below ⤵️",
-    "Thank you for finishing the basic form 🙌🏼 Up next is the assessment, please fill it out below ⤵️",
-    "Thanks for completing the basic form 🙌🏼 The next thing to do is fill out the assessment below ⤵️",
-    "We thank you for filling in the basic form 🙌🏼 Now, let's move on to the assessment below ⤵️",
-    "Your completion of the basic form is appreciated 🙌🏼 Next, please complete the assessment below ⤵️",
-    "Thank you for submitting the basic form 🙌🏼 The following step is to fill out the assessment below ⤵️",
-    "Cheers for finishing the basic form 🙌🏼 Please proceed by filling out the assessment below ⤵️",
-    "We appreciate you finishing the basic form 🙌🏼 Now, kindly complete the assessment below ⤵️"
+    "Almost there to land your job!\nNow, please proceed to the assessment below ⤵️",
+    "Just a few steps to your job! 🙌🏼\nYour next step is to fill in the assessment below ⤵️",
+    "You're so close to your job!\nThe next task is to tackle the assessment below ⤵️",
+    "Your job is just steps away!\nUp next is the assessment, please fill it out below ⤵️",
+    "Nearly there! Job is within reach!\nThe next thing to do is fill out the assessment below ⤵️",
+    "Steps away from your new job!\nNow, let's move on to the assessment below ⤵️",
+    "Job ahead! Just a few steps!\nNext, please complete the assessment below ⤵️",
+    "Your job is right around the corner!\nThe following step is to fill out the assessment below ⤵️",
+    "Almost at the finish line!\nPlease proceed by filling out the assessment below ⤵️",
+    "Just steps from your job!\nNow, kindly complete the assessment below ⤵️"
 ]
 
 assesment_form = [
-    "Hey, many thanks! You've made great progress—well done! 🚀 Next, read the text aloud and send it as a voice note:",
-    "Thank you so much! You've advanced significantly—congratulations! 🚀 Please read the text aloud and submit it as a voice note:",
-    "Appreciate it! You've taken a big step forward—kudos! 🚀 In the next step, read the text aloud and send it:",
-    "Thanks a lot! You've made an important leap—awesome job! 🚀 Read the text aloud and send it as a voice note, please:",
-    "Thank you very much! You've moved ahead impressively—great job! 🚀 Next step: read the text aloud and send it as voice note:",
-    "Hey, thanks a ton! You've achieved a major milestone—congrats! 🚀 Read the following text aloud and send it as a voice message:",
-    "Much appreciated! You've made remarkable progress—congratulations! 🚀 For the next step, read the text aloud and send it:",
-    "Thanks a bunch! You've taken a crucial step forward—nice work! 🚀 Please read aloud the text and send it as a voice note:",
-    "Thank you immensely! You've made significant strides—well done! 🚀 Next, read the following text aloud and send a voice note:",
-    "Hey, big thanks! You've moved forward significantly—excellent! 🚀 In the next step, read aloud and send the text as voice note:"
+    "You've made great progress—well done! 🚀 Next, read the text aloud and send it as a voice note:",
+    "You've advanced significantly—congratulations! 🚀 Please read the text aloud and submit it as a voice note:",
+    "You've taken a big step forward—kudos! 🚀 In the next step, read the text aloud and send it:",
+    "You've made an important leap—awesome job! 🚀 Read the text aloud and send it as a voice note, please:",
+    "You've moved ahead impressively—great job! 🚀 Next step: read the text aloud and send it as voice note:",
+    "You've achieved a major milestone—congrats! 🚀 Read the following text aloud and send it as a voice message:",
+    "You've made remarkable progress—congratulations! 🚀 For the next step, read the text aloud and send it:",
+    "You've taken a crucial step forward—nice work! 🚀 Please read aloud the text and send it as a voice note:",
+    "You've made significant strides—well done! 🚀 Next, read the following text aloud and send a voice note:",
+    "You've moved forward significantly—excellent! 🚀 In the next step, read aloud and send the text as voice note:"
 ]
 
 assesment_form_text_1 = [
@@ -36,16 +36,16 @@ assesment_form_text_1 = [
 
 
 voice_note_1 = [
-    "We got your voice note! ✅ Thanks so much! You've made excellent progress—great job! 🚀 Last task: record a voice note (over 1 minute) responding to this open-ended question:",
-    "Your voice note has arrived! ✅ Many thanks! You've done fantastic work—congratulations! 🚀 Final requirement: submit a voice note (minimum 1 minute) addressing the following query:",
-    "Voice note received! ✅ Thank you very much! You've achieved great progress—well done! 🚀 Complete the process by sending a voice note (at least 1 minute) answering the following:",
-    "We've got your voice note! ✅ Thanks a ton! You've advanced impressively—awesome job! 🚀 The last step is to record and send a voice note (1+ minute) on the following topic:",
-    "Your voice note has been successfully received! ✅ Thanks a bunch! You've made amazing progress—congrats! 🚀 To finish, please provide a voice note (exceeding 1 minute) responding to the following question:",
-    "Voice note received successfully! ✅ Thank you so much! You've reached a significant milestone—brilliant work! 🚀 The final hurdle: recording a voice note (over 1 minute) to address the following inquiry:",
-    "We've received your voice note! ✅ Many thanks! You've progressed wonderfully—great job! 🚀 Complete your awesome journey by submitting a voice note (longer than 1 minute) on the following theme:",
-    "Your voice note is in! ✅ Thanks a lot! You've moved forward tremendously—excellent work! 🚀 The concluding, send a voice note (minimum 1 minute) exploring the following open-ended question:",
-    "Voice note has been received! ✅ Big thanks! You've accomplished great strides—well done! 🚀 To conclude, please record and submit a voice note (at least 1 minute) on the following subject:",
-    "Got your voice note! ✅ Thank you immensely! You've made substantial progress—fantastic job! 🚀 The last task involves recording a voice note (1+ minute) that thoughtfully addresses the following prompt:"
+    "We got your voice note! ✅ You've made excellent progress—great job! 🚀 Last task: record a voice note (over 1 minute) responding to this open-ended question:",
+    "Your voice note has arrived! ✅  You've done fantastic work—congratulations! 🚀 Final requirement: submit a voice note (minimum 1 minute) addressing the following query:",
+    "Voice note received! ✅ You've achieved great progress—well done! 🚀 Complete the process by sending a voice note (at least 1 minute) answering the following:",
+    "We've got your voice note! ✅  You've advanced impressively—awesome job! 🚀 The last step is to record and send a voice note (1+ minute) on the following topic:",
+    "Your voice note has been successfully received! ✅  You've made amazing progress—congrats! 🚀 To finish, please provide a voice note (exceeding 1 minute) responding to the following question:",
+    "Voice note received successfully! ✅ You've reached a significant milestone—brilliant work! 🚀 The final hurdle: recording a voice note (over 1 minute) to address the following inquiry:",
+    "We've received your voice note! ✅  You've progressed wonderfully—great job! 🚀 Complete your awesome journey by submitting a voice note (longer than 1 minute) on the following theme:",
+    "Your voice note is in! ✅ You've moved forward tremendously—excellent work! 🚀 The concluding, send a voice note (minimum 1 minute) exploring the following open-ended question:",
+    "Voice note has been received! ✅  You've accomplished great strides—well done! 🚀 To conclude, please record and submit a voice note (at least 1 minute) on the following subject:",
+    "Got your voice note! ✅  You've made substantial progress—fantastic job! 🚀 The last task involves recording a voice note (1+ minute) that thoughtfully addresses the following prompt:"
 ]
 
 open_question_1 = [

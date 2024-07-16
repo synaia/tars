@@ -64,3 +64,14 @@ END;
 
 
 ![image](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhzgwetd93YNGiy-FZ0HAs807Q6_walEUZqnt7TNtN-3RdAEOv075dnd0KNw7Nlo98KI-5S7XVtpmCPTAshV0OlBmbIZu-rESuwvWpE4eVMb7qDKCce7oZ-lMA1td8CnlsLuZR88vgly-k/s320/cooper+and+tars.jpg)
+
+
+DEL 18496576757:GET_FROM_SENDER
+ZRANGE 18496576757:GET_FROM_SENDER 0 -1
+
+
+redis-cli --scan --pattern "18496576757:GET_FROM_SENDER" | xargs -L 1 redis-cli del;
+redis-cli --scan --pattern "record:18496576757:GET_FROM_SENDER:*" | xargs -L 1 redis-cli del;
+redis-cli --scan --pattern "state:18496576757:GET_FROM_SENDER" | xargs -L 1 redis-cli del;
+
+psql -v -d synaia --host=138.197.112.92 --port=5432 --username=drfadul -c "SELECT MSISDN FROM va_chat_history ORDER by id DESC;"

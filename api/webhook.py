@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, Response, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from rich import print
 from dotenv import dotenv_values
@@ -12,11 +12,14 @@ secret = dotenv_values('.secret')
     
     
 @router.get("/")
-def subscribe(request: Request):
+def subscribe(request: Request, response: Response):
+    # response.headers["ngrok-skip-browser-warning"] = "1"
     WHATSAPP_HOOK_TOKEN = request.app.state.secret['WHATSAPP_HOOK_TOKEN']
     print(WHATSAPP_HOOK_TOKEN)
     if request.query_params.get('hub.verify_token') == WHATSAPP_HOOK_TOKEN:
+        print("Authentication success.")
         return int(request.query_params.get('hub.challenge'))
+    print("Authentication failed. Invalid Token.")
     return "Authentication failed. Invalid Token."
 
 
@@ -30,7 +33,8 @@ def manage_message(msisdn: str, campaign: str, text: str, wamid: str, audio_id: 
 
 
 @router.post("/", status_code=200)
-async def process_notifications(request: Request, background_tasks: BackgroundTasks):
+async def process_notifications(request: Request, response: Response, background_tasks: BackgroundTasks):
+    # response.headers["ngrok-skip-browser-warning"] = "1"
     data = await request.json()
     wtsapp_client = WhatsAppClient()
     print("We received ")

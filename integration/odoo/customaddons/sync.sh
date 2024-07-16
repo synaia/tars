@@ -19,3 +19,5 @@ sshpass -p "$elmer_pass"  ssh elmer@138.197.112.92  "echo \"${elmer_pass}\" | su
 
 
 
+
+

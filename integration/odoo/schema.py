@@ -58,7 +58,6 @@ class Applicant(BaseModel):
     lead_last_update: Optional[datetime] = None
     lead_last_client_update: Optional[datetime] = None
     lead_max_temperature: Optional[float] = None
-    lead_heat_check: Optional[str] = None
     speech_open_question: Optional[str] = None
     speech_unscripted_overall_score: Optional[float] = None
     speech_unscripted_length: Optional[float] = None
