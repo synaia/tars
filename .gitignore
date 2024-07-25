@@ -50,3 +50,26 @@ spontaneous_speech_corr.png
 /web/__pycache__/
 /web/astroship/
 /sync_web.sh
+
+
+# Website
+/website/synaia/logs
+/website/synaia/*.log
+/website/synaia/npm-debug.log*
+/website/synaia/yarn-debug.log*
+/website/synaia/yarn-error.log*
+/website/synaia/pnpm-debug.log*
+/website/synaia/lerna-debug.log*
+/website/synaia/node_modules
+/website/synaia/dist
+/website/synaia/dist-ssr
+/website/synaia/*.local
+/website/synaia/.vscode/*
+/website/synaia/!.vscode/extensions.json
+/website/synaia/.idea
+/website/synaia/.DS_Store
+/website/synaia/*.suo
+/website/synaia/*.ntvs*
+/website/synaia/*.njsproj
+/website/synaia/*.sln
+/website/synaia/*.sw?
