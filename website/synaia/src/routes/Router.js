@@ -116,6 +116,17 @@ const Landingpage = Loadable(lazy(() => import('../views/pages/landingpage/Landi
 // Contact
 const Contactpage = Loadable(lazy(() => import('../views/pages/contact/Contactpage')));
 
+// Services
+const Servicespage = Loadable(lazy(() => import('../views/pages/services/Servicespage')));
+const Servicespage1 = Loadable(lazy(() => import('../views/pages/services/Servicespage1')));
+const Servicespage2 = Loadable(lazy(() => import('../views/pages/services/Servicespage2')));
+const Servicespage3 = Loadable(lazy(() => import('../views/pages/services/Servicespage3')));
+const Servicespage4 = Loadable(lazy(() => import('../views/pages/services/Servicespage4')));
+
+// Privacy and Terms
+const Privacypage = Loadable(lazy(() => import('../views/pages/privacy/Privacypage')));
+const Termspage = Loadable(lazy(() => import('../views/pages/terms/Termspage')));
+
 // About
 const Aboutpage = Loadable(lazy(() => import('../views/pages/about/Aboutpage')));
 
@@ -211,6 +222,13 @@ const Router = [
       { path: '/auth/maintenance', element: <Maintenance /> },
       { path: '/contact', element: <Contactpage /> },
       { path: '/about', element: <Aboutpage /> },
+      { path: '/services', element: <Servicespage /> },
+      { path: '/services/software-development', element: <Servicespage1 /> },
+      { path: '/services/ai-automations', element: <Servicespage2 /> },
+      { path: '/services/data-science', element: <Servicespage3 /> },
+      { path: '/services/whatsapp-workflows', element: <Servicespage4 /> },
+      { path: '/privacy', element: <Privacypage /> },
+      { path: '/terms-and-conditions', element: <Termspage /> },
       { path: '/landingpage', element: <Landingpage /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],

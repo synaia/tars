@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Container, Button, styled, Typography, Grid, Avatar,  Chip } from '@mui/material';
 import './demo-slider.css';
 import DemoTitle from './DemoTitle';
+import { NavLink } from 'react-router-dom';
 
 import {
   IconArchive,
@@ -47,22 +48,22 @@ const StyledBox = styled(Box)(() => ({
 
 const demos = [
   {
-    link: 'https://www.synaia.io',
+    link: '/services/software-development',
     img: codingService,
     title: 'Software Development',
   },
   {
-    link: 'https://www.synaia.io',
+    link: '/services/ai-automations',
     img: aiService,
     title: 'AI Automations',
   },
   {
-    link: 'https://www.synaia.io',
+    link: '/services/data-science',
     img: dsService,
     title: 'Data Science',
   },
   {
-    link: 'https://www.synaia.io',
+    link: '/services/whatsapp-workflows',
     img: wsService,
     title: 'What\sApp Workflows',
   },
@@ -111,8 +112,9 @@ const DemoSlider = () => {
                       variant="contained"
                       color="primary"
                       size="small"
-                      href={demo.link}
-                      target="_blank"
+                      component={NavLink} to={demo.link}
+                      // href={demo.link}
+                      // target="_blank"
                       sx={{
                         textAlign: 'center',
                         color: '#000',

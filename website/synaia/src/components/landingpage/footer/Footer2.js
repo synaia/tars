@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Link, Typography, Container } from '@mui/material';
+import { Grid, Link, Typography, Container, Box } from '@mui/material';
 import {
   FbContact2Form,
 } from '../../../components/forms/form-layouts/index';
@@ -35,8 +35,17 @@ const Footer = () => {
             </Grid>
             <div>
               <Typography fontSize="16" color="textSecondary" mt={1} mb={4} textAlign={'justify'} ml={2} mr={2}>
-              At Synaia, we pride ourselves on delivering exceptional technological solutions that push the boundaries of innovation. We specialize in implementing cutting-edge AI and deep learning technologies to transform businesses and drive success. Our team of experts is dedicated to creating intelligent systems that not only meet but exceed our clients’ expectations. By leveraging our extensive knowledge and experience in the tech industry, we provide customized solutions that address unique challenges and unlock new opportunities. At Synaia, we are committed to excellence and passionate about helping our clients achieve their goals through the power of technology.
+              At Synaia, we pride ourselves on delivering exceptional technological solutions that push the boundaries of innovation. We specialize in implementing cutting-edge AI and deep learning technologies to transform businesses and drive success. Our team of experts is dedicated to creating intelligent systems that not only meet but exceed our clients’ expectations. 
               </Typography>
+              <Box display="flex" justifyContent="Left" mb={4}>
+                <Link href="/privacy" color="inherit" underline="none" mx={2}>
+                  Privacy
+                </Link>
+                <span>|</span>
+                <Link href="/terms-and-conditions" color="inherit" underline="none" mx={2}>
+                  Terms and conditions
+                </Link>
+              </Box>
             </div>
           </Grid>
         </Grid>
