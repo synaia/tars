@@ -5,6 +5,7 @@ uvicorn
 odoorpc
 jupyterlab
 dspy-ai
+litellm
 groq
 python-dotenv
 chromadb
