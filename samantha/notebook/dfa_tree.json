@@ -1,0 +1,91 @@
+{
+    "dfa": {
+        "states": [
+            "state_0"
+        ],
+        "transitions": [
+            {
+                "trigger": "#voicenote",
+                "source": "initial",
+                "dest": "greeting"
+            },
+            {
+                "trigger": "#question",
+                "source": "greeting",
+                "dest": "basic"
+            },
+            {
+                "trigger": "#taskcomplete",
+                "source": "basic",
+                "dest": "assessment"
+            },
+            {
+                "trigger": "#resume",
+                "source": "assessment",
+                "dest": "scripted_text"
+            },
+            {
+                "trigger": "#taskcomplete",
+                "source": "scripted_text",
+                "dest": "open-ended"
+            },
+            {
+                "trigger": "#taskcomplete",
+                "source": "open-ended",
+                "dest": "final"
+            }
+        ],
+        "start_state": "state_0",
+        "accept_states": [
+            "state_0"
+        ],
+        "current_state": "state_0"
+    },
+    "children": [
+        {
+            "dfa": {
+                "states": [
+                    "state_0"
+                ],
+                "transitions": [
+                    {
+                        "trigger": "#voicenote",
+                        "source": "initial",
+                        "dest": "greeting"
+                    },
+                    {
+                        "trigger": "#question",
+                        "source": "greeting",
+                        "dest": "basic"
+                    },
+                    {
+                        "trigger": "#taskcomplete",
+                        "source": "basic",
+                        "dest": "assessment"
+                    },
+                    {
+                        "trigger": "#resume",
+                        "source": "assessment",
+                        "dest": "scripted_text"
+                    },
+                    {
+                        "trigger": "#taskcomplete",
+                        "source": "scripted_text",
+                        "dest": "open-ended"
+                    },
+                    {
+                        "trigger": "#taskcomplete",
+                        "source": "open-ended",
+                        "dest": "final"
+                    }
+                ],
+                "start_state": "state_0",
+                "accept_states": [
+                    "state_0"
+                ],
+                "current_state": "state_0"
+            },
+            "children": []
+        }
+    ]
+}

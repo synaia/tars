@@ -1,0 +1,120 @@
+{
+    "state": "state_0",
+    "final": false,
+    "tags": [
+        {
+            "name": "#issue",
+            "child": {
+                "state": "state_1",
+                "final": false,
+                "tags": [
+                    {
+                        "name": "#keyboard",
+                        "child": {
+                            "state": "state_2",
+                            "final": false,
+                            "tags": [
+                                {
+                                    "name": "#link",
+                                    "child": {
+                                        "state": "state_5",
+                                        "final": false,
+                                        "tags": [
+                                            {
+                                                "name": "#thank",
+                                                "child": {
+                                                    "state": "state_6",
+                                                    "final": false,
+                                                    "tags": [
+                                                        {
+                                                            "name": "#bye",
+                                                            "child": {
+                                                                "state": "final",
+                                                                "final": true,
+                                                                "tags": []
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "#battery",
+                        "child": {
+                            "state": "state_3",
+                            "final": false,
+                            "tags": [
+                                {
+                                    "name": "#link",
+                                    "child": {
+                                        "state": "state_8",
+                                        "final": false,
+                                        "tags": [
+                                            {
+                                                "name": "#thank",
+                                                "child": {
+                                                    "state": "state_9",
+                                                    "final": false,
+                                                    "tags": [
+                                                        {
+                                                            "name": "#bye",
+                                                            "child": {
+                                                                "state": "final",
+                                                                "final": true,
+                                                                "tags": []
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "#update",
+            "child": {
+                "state": "state_4",
+                "final": false,
+                "tags": [
+                    {
+                        "name": "#link",
+                        "child": {
+                            "state": "state_11",
+                            "final": false,
+                            "tags": [
+                                {
+                                    "name": "#thank",
+                                    "child": {
+                                        "state": "state_12",
+                                        "final": false,
+                                        "tags": [
+                                            {
+                                                "name": "#bye",
+                                                "child": {
+                                                    "state": "final",
+                                                    "final": true,
+                                                    "tags": []
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
